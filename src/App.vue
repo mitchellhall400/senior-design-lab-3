@@ -15,6 +15,10 @@
         class='secondary'
         @click="logout"
       >Logout</v-btn>
+      <v-btn
+        icon
+        @click="toggleTheme"
+      ><v-icon>mdi-brightness-4</v-icon></v-btn>
     </v-app-bar>
     <v-main class='ma-4'><router-view /></v-main>
     <toast ref="toast"/>
@@ -33,6 +37,9 @@ export default {
     this.$root.toast = this.$refs.toast
   },
   methods: {
+    toggleTheme() {
+      this.$vuetify.theme.dark = !(this.$vuetify.theme.dark)
+    },
     logout() {
       signOut().then(() => {
         this.$router.push('/')

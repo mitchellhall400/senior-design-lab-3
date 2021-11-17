@@ -8,7 +8,7 @@ const routes = [
   {
     path: '/',
     name: 'Login',
-    component: () => import('../views/Login.vue'),
+    component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
     meta: {
       title: 'Poodle Poll'
     }
@@ -16,7 +16,7 @@ const routes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue'),
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Dashboard.vue'),
     meta: {
       title: 'Poodle Poll',
       authRequired: true,

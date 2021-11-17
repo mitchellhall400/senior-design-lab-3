@@ -4,6 +4,8 @@
     :timeout="timer"
     v-model="showSnackbar"
     rounded="pill"
+    min-width='10px'
+    transition="slide-y-reverse-transition"
     >{{ message }}</v-snackbar
   >
 </template>
