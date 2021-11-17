@@ -28,7 +28,6 @@
 <script>
 import toast from './components/Toast.vue'
 import { signOut, getAuth } from 'firebase/auth'
-
 export default {
   components:{
     toast
@@ -36,12 +35,18 @@ export default {
   mounted() {
     this.$root.toast = this.$refs.toast
   },
+  computed: {
+    isSignedIn() {
+      return this.$route.name !== 'Login'
+    },
+  },
   methods: {
     toggleTheme() {
       this.$vuetify.theme.dark = !(this.$vuetify.theme.dark)
     },
     logout() {
-      signOut().then(() => {
+      const auth = getAuth();
+      signOut(auth).then(() => {
         this.$router.push('/')
       })
       .catch(error => {
@@ -50,8 +55,5 @@ export default {
       })
     },
   },
-  data: () => ({
-    isSignedIn: getAuth().currentUser,
-  })
 }
 </script>

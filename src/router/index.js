@@ -32,14 +32,16 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.authRequired)) {
-    if (getAuth().currentUser) {
-      next()
-    }
-    else {
-      next({
-        path: '/',
-      })
-    }
+    getAuth().onAuthStateChanged((user) => {
+      if(user) {
+        next()
+      }
+      else {
+        next({
+          path: '/',
+        })
+      }
+    })
   }
   else {
     next()
