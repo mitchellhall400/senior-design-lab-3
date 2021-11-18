@@ -146,17 +146,22 @@ export default {
     },
     validateSignUp() {
       if (this.$refs.signUpForm.validate()) {
-        const auth = getAuth();
-        createUserWithEmailAndPassword(auth, this.email, this.password)
-          .then(() => {
-            this.$root.toast.show({
-              message: "Succesfully created an account!",
-            });
-            this.$router.push("/dashboard");
-          })
-          .catch((error) => {
-            this.$root.toast.show({ message: error.message });
-          });
+        if (this.password === this.verify) {
+          const auth = getAuth();
+          createUserWithEmailAndPassword(auth, this.email, this.password)
+            .then(() => {
+              this.$root.toast.show({
+                message: "Succesfully created an account!",
+              })
+              this.$router.push("/dashboard");
+            })
+            .catch((error) => {
+              this.$root.toast.show({ message: error.message })
+            })
+        }
+        else {
+          this.$root.toast.show({ message: "Passwords do not match." })
+        }
       }
     },
     reset() {
