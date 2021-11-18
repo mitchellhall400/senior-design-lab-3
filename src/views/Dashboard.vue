@@ -48,7 +48,21 @@
 </template>
 
 <script>
+import {database} from '../firebase'
+import {get, ref, child} from 'firebase/database'
+
+const polls = ref(database, "polls/")
+get(child(polls,'1020120/created_by')).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val())
+  } else {
+    console.log("No data available")
+  }
+}).catch((error) => {
+  console.error(error);
+})
+
 export default {
-  name: "Dashboard",
+  name: 'Dashboard',
 };
 </script>

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { getAuth } from 'firebase/auth'
+import { auth } from '../firebase'
 
 Vue.use(VueRouter);
 
@@ -32,7 +32,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.authRequired)) {
-    getAuth().onAuthStateChanged((user) => {
+    auth.onAuthStateChanged((user) => {
       if(user) {
         next()
       }
