@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "senior-design-lab"
+  },
+  "targets": {
+    "senior-design-lab": {
+      "hosting": {
+        "default": [
+          "poodlepoll"
+        ]
+      }
+    }
   }
 }
