@@ -22,6 +22,15 @@ const routes = [
       authRequired: true,
     },
   },
+  {
+    path: '/create',
+    name: 'Create',
+    component: () => import(/* webpackChunkName: "create" */ '../views/Create.vue'),
+    meta: {
+      title: 'Poodle Poll',
+      authRequired: true,
+    },
+  }
 ]
 
 const router = new VueRouter({
@@ -33,7 +42,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.authRequired)) {
     auth.onAuthStateChanged((user) => {
-      if(user) {
+      if (user) {
         next()
       }
       else {

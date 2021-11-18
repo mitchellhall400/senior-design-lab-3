@@ -34,6 +34,7 @@
     <v-fab-transition>
       <v-btn
         fab
+        @click="$router.push('/create')"
         x-large
         fixed
         right
