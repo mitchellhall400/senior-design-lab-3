@@ -65,5 +65,8 @@ get(child(polls,'1020120/created_by')).then((snapshot) => {
 
 export default {
   name: 'Dashboard',
+  metaInfo: {
+    title: 'Dashboard'
+  }
 };
 </script>

@@ -55,5 +55,15 @@ export default {
       })
     },
   },
+  metaInfo: {
+    tile: 'Login',
+    titleTemplate: '%s | Poodle Poll',
+    htmlAttrs: {
+      lang: 'en-US'
+    },
+    meta: [
+      { name: 'theme-color', content: '#446664' },
+    ]
+  },
 }
 </script>

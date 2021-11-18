@@ -104,6 +104,9 @@ export default {
       'BET - Brazil Eastern Time',
       'CAT - Central African Time'
     ]
-  })
+  }),
+  metaInfo: {
+    title: 'Create'
+  }
 };
 </script>

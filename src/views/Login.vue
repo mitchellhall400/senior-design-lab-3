@@ -238,5 +238,8 @@ export default {
       min: (v) => (v && v.length >= 8) || "Min 8 characters",
     },
   }),
+  metaInfo: {
+    title: 'Login'
+  }
 };
 </script>
