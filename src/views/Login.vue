@@ -21,7 +21,7 @@
           <v-tab-item>
             <v-card class="px-4">
               <v-card-text>
-                <v-form ref="loginForm" v-model="valid" lazy-validation>
+                <v-form ref="loginForm" @submit="validateLogin" v-model="valid" lazy-validation>
                   <v-row>
                     <v-col cols="12">
                       <v-text-field
@@ -51,7 +51,7 @@
                         block
                         :disabled="!valid"
                         color="secondary"
-                        @click="validateLogin"
+                        type="submit"
                       >
                         Login
                       </v-btn>
@@ -64,7 +64,7 @@
           <v-tab-item>
             <v-card class="px-4">
               <v-card-text>
-                <v-form ref="signUpForm" v-model="valid" lazy-validation>
+                <v-form ref="signUpForm" @submit="validateSignUp" v-model="valid" lazy-validation>
                   <v-row>
                     <v-col cols="12">
                       <v-text-field
@@ -106,7 +106,7 @@
                         block
                         :disabled="!valid"
                         color="secondary"
-                        @click="validateSignUp"
+                        type="submit"
                         >Register</v-btn
                       >
                     </v-col>
