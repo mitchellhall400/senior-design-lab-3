@@ -123,17 +123,16 @@
 
 <script>
 import {
-  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-} from "firebase/auth";
+} from 'firebase/auth';
+import {auth} from '../firebase'
 
 export default {
   name: "Login",
   methods: {
     validateLogin() {
       if (this.$refs.loginForm.validate()) {
-        const auth = getAuth();
         signInWithEmailAndPassword(auth, this.loginEmail, this.loginPassword)
           .then(() => {
             this.$root.toast.show({ message: "Succesfully signed in!" });
@@ -147,7 +146,6 @@ export default {
     validateSignUp() {
       if (this.$refs.signUpForm.validate()) {
         if (this.password === this.verify) {
-          const auth = getAuth();
           createUserWithEmailAndPassword(auth, this.email, this.password)
             .then(() => {
               this.$root.toast.show({
