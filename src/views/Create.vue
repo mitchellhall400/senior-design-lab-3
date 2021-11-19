@@ -1,12 +1,7 @@
 <template>
   <v-container>
     <v-row align="center" justify="center">
-      <v-card 
-        class="justify-center pa-4" 
-        max-width="600px" 
-        min-width="500px"
-        block
-      >
+      <v-card class="justify-center pa-4" max-width="800px" min-width="500px">
         <v-form @submit="validateCreate">
           <div class="text-h5 mb-4">
               Create New Poodle
@@ -39,8 +34,33 @@
             :items="timezones"
             filled
             prepend-icon=mdi-map-clock
-            value="No Timezone Selected"
+            value="Not Specified"
+            label="Time Zone"
           ></v-select>
+          <v-card class="justify-center ma-4">
+            <v-date-picker
+              v-model="dates"
+              range
+              
+            ></v-date-picker>
+          
+          
+            <v-text-field
+              v-model="dateRangeText"
+              label="Date range"
+              prepend-icon="mdi-calendar"
+              readonly
+            ></v-text-field>
+          </v-card>
+          <v-textarea
+            filled
+            name="poodlers"
+            label="Poodlers"
+            auto-grow
+            placeholder="email1, email2, ect."
+            hint="comma separated list of emails"
+            prepend-icon=mdi-account-group
+          ></v-textarea>
           <v-checkbox
             name="publish"
             label="Publish with creation"
@@ -69,8 +89,12 @@
 export default {
   name: "Create",
   data: () => ({
+    dates: ['2020-11-19'],
+      // String(Date.getDate()).padStart(2, '0')+'-'+
+      // String(Date.getMonth() + 1).padStart(2, '0')+'-'+
+      // Date.getFullYear()],
     timezones: [
-      'No Timezone Selected',
+      'Not Specified',
       'GMT - Greenwich Mean Time',
       'UTC - Universal Coordinated Time',
       'ECT - European Central Time',
@@ -107,6 +131,11 @@ export default {
   }),
   metaInfo: {
     title: 'Create'
-  }
+  },
+  computed: {
+      dateRangeText () {
+        return this.dates.join(' ~ ')
+      },
+    },
 };
 </script>
