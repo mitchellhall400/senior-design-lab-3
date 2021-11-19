@@ -1,5 +1,5 @@
 <template>
-  <v-container fill-height fluid>
+  <v-container>
     <template v-for="n in 6">
       <v-card
         class="ma-4"
