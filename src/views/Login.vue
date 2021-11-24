@@ -1,7 +1,12 @@
 <template>
   <v-container fill-height fluid>
     <v-row align="center" justify="center">
-      <v-card class="justify-center" max-width="600px" min-width="360px">
+      <v-card
+        class="justify-center"
+        max-width="600px"
+        min-width="360px"
+        elevation="24"
+      >
         <v-tabs
           v-model="tab"
           show-arrows
@@ -156,8 +161,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-} from "firebase/auth";
-import { auth } from "../firebase";
+} from "firebase/auth"
+import { auth } from "../firebase"
 
 export default {
   name: "Login",
@@ -172,8 +177,7 @@ export default {
           .catch((error) => {
             this.$root.toast.show({ message: error.message })
           })
-      }
-      else {
+      } else {
         this.$root.toast.show({ message: "Not sent!" })
       }
     },
@@ -181,12 +185,12 @@ export default {
       if (this.$refs.loginForm.validate()) {
         signInWithEmailAndPassword(auth, this.loginEmail, this.loginPassword)
           .then(() => {
-            this.$root.toast.show({ message: "Succesfully signed in!" });
-            this.$router.push("/dashboard");
+            this.$root.toast.show({ message: "Succesfully signed in!" })
+            this.$router.push("/dashboard")
           })
           .catch((error) => {
-            this.$root.toast.show({ message: error.message });
-          });
+            this.$root.toast.show({ message: error.message })
+          })
       }
     },
     validateSignUp() {
@@ -196,22 +200,22 @@ export default {
             .then(() => {
               this.$root.toast.show({
                 message: "Succesfully created an account!",
-              });
-              this.$router.push("/dashboard");
+              })
+              this.$router.push("/dashboard")
             })
             .catch((error) => {
-              this.$root.toast.show({ message: error.message });
-            });
+              this.$root.toast.show({ message: error.message })
+            })
         } else {
-          this.$root.toast.show({ message: "Passwords do not match." });
+          this.$root.toast.show({ message: "Passwords do not match." })
         }
       }
     },
     reset() {
-      this.$refs.form.reset();
+      this.$refs.form.reset()
     },
     resetValidation() {
-      this.$refs.form.resetValidation();
+      this.$refs.form.resetValidation()
     },
   },
   data: () => ({
@@ -239,7 +243,7 @@ export default {
     },
   }),
   metaInfo: {
-    title: 'Login'
-  }
-};
+    title: "Login",
+  },
+}
 </script>
