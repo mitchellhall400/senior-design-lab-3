@@ -30,17 +30,27 @@
             <v-list-item-title class="text-h4 mb-1">{{
               poll.title
             }}</v-list-item-title>
-            <v-list-item
+            <v-list-item v-if="poll.description.replace(/\s/g, '').length"
+              ><v-icon style="align-items: top;" class="pa-2">mdi-comment-text</v-icon
+              ><div class="clamp-text">{{ poll.description }}</div></v-list-item
+            >
+            <v-list-item v-if="poll.location.replace(/\s/g, '').length"
               ><v-icon class="pa-2">mdi-map-marker</v-icon
               >{{ poll.location }}</v-list-item
             >
             <v-list-item
-              ><v-icon class="pa-2">mdi-timer-sand-complete</v-icon>Closes at
+              ><v-icon class="pa-2">mdi-calendar-collapse-horizontal</v-icon>From
+              {{poll.window_date_start}} to {{poll.window_date_end}}</v-list-item
+            >
+            <v-list-item v-if="poll.closes_at.replace(/\s/g, '').length"
+              ><v-icon class="pa-2">mdi-calendar-end</v-icon>Closes at
               {{ getClosesAt(poll.closes_at, poll.timezone) }}</v-list-item
             >
-            <v-list-item
-              ><v-icon class="pa-2">mdi-clipboard-text-clock</v-icon>From
-              1/1/2021 5:50 PM CTD to 1/5/2021 5:50 PM CTD</v-list-item
+            <v-list-item v-if="poll.published"
+              ><v-icon class="pa-2">mdi-publish</v-icon>Published</v-list-item
+            >
+            <v-list-item v-else
+              ><v-icon class="pa-2">mdi-publish-off</v-icon>Not published</v-list-item
             >
           </v-list-item-content>
         </v-list-item>
@@ -104,7 +114,7 @@ export default {
         }
       })
     },
-    getClosesAt(str, tzn) {
+    getTmz24Time(str, tzn) {
       var date = new Date(str)
       var hours = date.getHours()
       var minutes = date.getMinutes()
@@ -112,14 +122,18 @@ export default {
       hours = hours % 12
       hours = hours ? hours : 12
       minutes = minutes < 10 ? "0" + minutes : minutes
-      var strTime = hours + ":" + minutes + " " + ampm
+      return hours + ":" + minutes + " " + ampm + " " + tzn
+    },
+    getClosesAt(str, tzn) {
+      var date = new Date(str)
+      var strTime = this.getTmz24Time(str, tzn)
       var dateStr =
         (date.getMonth() + 1).toString() +
         "/" +
         date.getDate().toString() +
         "/" +
         date.getFullYear().toString()
-      return strTime + " " + tzn + " on " + dateStr
+      return strTime + " on " + dateStr
     },
   },
   metaInfo: {
@@ -127,3 +141,14 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+  .clamp-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    white-space: normal;
+  }
+</style>
