@@ -11,16 +11,12 @@ const routes = [
     path: '/',
     name: 'Login',
     component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
-    meta: {
-      title: 'Poodle Poll'
-    }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import(/* webpackChunkName: "dashboard" */ '../views/Dashboard.vue'),
     meta: {
-      title: 'Poodle Poll',
       authRequired: true,
     },
   },
@@ -29,7 +25,14 @@ const routes = [
     name: 'Create',
     component: () => import(/* webpackChunkName: "create" */ '../views/Create.vue'),
     meta: {
-      title: 'Poodle Poll',
+      authRequired: true,
+    },
+  },
+  {
+    path: '/edit/:id',
+    name: 'Edit',
+    component: () => import(/* webpackChunkName: "edit" */ '../views/Edit.vue'),
+    meta: {
       authRequired: true,
     },
   }
@@ -37,7 +40,6 @@ const routes = [
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
   routes,
 })
 
