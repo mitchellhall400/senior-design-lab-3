@@ -1,18 +1,25 @@
 <template>
   <v-container v-if="loading">
-    <v-row align="center" justify="center">
-        <v-progress-circular
-          class="align-center mt-4"
-          size="70"
-          width="7"
-          indeterminate
-          color="accent"
-        ></v-progress-circular>
-    </v-row>
+    <v-skeleton-loader
+      class="ma-4"
+      type="article, actions"
+    ></v-skeleton-loader>
   </v-container>
   <v-container v-else>
-    <!-- TODO -->
-    Editing poll: {{ poll }}
+    <v-card class="ma-4" elevation="8">
+      <v-list-item three-line>
+        {{poll}}
+      </v-list-item>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="$router.push('/dashboard')" outlined color="secondary">
+          Cancel
+        </v-btn>
+        <v-btn @click="$router.push('/dashboard')" color="secondary">
+          Save
+        </v-btn>
+      </v-card-actions>
+    </v-card>
   </v-container>
 </template>
   

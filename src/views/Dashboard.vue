@@ -31,16 +31,19 @@
               poll.title
             }}</v-list-item-title>
             <v-list-item v-if="poll.description.replace(/\s/g, '').length"
-              ><v-icon style="align-items: top;" class="pa-2">mdi-comment-text</v-icon
-              ><div class="clamp-text">{{ poll.description }}</div></v-list-item
+              ><v-icon style="align-items: top" class="pa-2"
+                >mdi-comment-text</v-icon
+              >
+              <div class="clamp-text">{{ poll.description }}</div></v-list-item
             >
             <v-list-item v-if="poll.location.replace(/\s/g, '').length"
               ><v-icon class="pa-2">mdi-map-marker</v-icon
               >{{ poll.location }}</v-list-item
             >
             <v-list-item
-              ><v-icon class="pa-2">mdi-calendar-collapse-horizontal</v-icon>From
-              {{poll.window_date_start}} to {{poll.window_date_end}}</v-list-item
+              ><v-icon class="pa-2">mdi-calendar-collapse-horizontal</v-icon
+              >From {{ poll.window_date_start }} to
+              {{ poll.window_date_end }}</v-list-item
             >
             <v-list-item v-if="poll.closes_at.replace(/\s/g, '').length"
               ><v-icon class="pa-2">mdi-calendar-end</v-icon>Closes at
@@ -50,14 +53,17 @@
               ><v-icon class="pa-2">mdi-publish</v-icon>Published</v-list-item
             >
             <v-list-item v-else
-              ><v-icon class="pa-2">mdi-publish-off</v-icon>Not published</v-list-item
+              ><v-icon class="pa-2">mdi-publish-off</v-icon>Not
+              published</v-list-item
             >
           </v-list-item-content>
         </v-list-item>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn outlined color="secondary"> Remind Poodlers </v-btn>
-          <v-btn color="secondary"> Edit Poodle </v-btn>
+          <v-btn @click="$router.push('/edit/' + index)" color="secondary">
+            Edit Poodle
+          </v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -80,8 +86,8 @@
 </template>
 
 <script>
-import { db, auth } from "../firebase"
-import { get, ref, query, orderByChild, equalTo } from "firebase/database"
+import { db, auth } from "../firebase";
+import { get, ref, query, orderByChild, equalTo } from "firebase/database";
 
 export default {
   name: "Dashboard",
@@ -91,11 +97,11 @@ export default {
     none: false,
   }),
   created() {
-    this.getPolls()
+    this.getPolls();
   },
   methods: {
     getPolls() {
-      this.loading = true
+      this.loading = true;
       get(
         query(
           ref(db, "polls"),
@@ -104,51 +110,51 @@ export default {
         )
       ).then((snapshot) => {
         if (snapshot.exists()) {
-          this.polls = snapshot.val()
-          this.loading = false
-          this.none = false
+          this.polls = snapshot.val();
+          this.loading = false;
+          this.none = false;
         } else {
-          this.loading = false
-          this.polls = []
-          this.none = true
+          this.loading = false;
+          this.polls = [];
+          this.none = true;
         }
-      })
+      });
     },
     getTmz24Time(str, tzn) {
-      var date = new Date(str)
-      var hours = date.getHours()
-      var minutes = date.getMinutes()
-      var ampm = hours >= 12 ? "PM" : "AM"
-      hours = hours % 12
-      hours = hours ? hours : 12
-      minutes = minutes < 10 ? "0" + minutes : minutes
-      return hours + ":" + minutes + " " + ampm + " " + tzn
+      var date = new Date(str);
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+      var ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      return hours + ":" + minutes + " " + ampm + " " + tzn;
     },
     getClosesAt(str, tzn) {
-      var date = new Date(str)
-      var strTime = this.getTmz24Time(str, tzn)
+      var date = new Date(str);
+      var strTime = this.getTmz24Time(str, tzn);
       var dateStr =
         (date.getMonth() + 1).toString() +
         "/" +
         date.getDate().toString() +
         "/" +
-        date.getFullYear().toString()
-      return strTime + " on " + dateStr
+        date.getFullYear().toString();
+      return strTime + " on " + dateStr;
     },
   },
   metaInfo: {
     title: "Dashboard",
   },
-}
+};
 </script>
 
 <style scoped>
-  .clamp-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    white-space: normal;
-  }
+.clamp-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  white-space: normal;
+}
 </style>
