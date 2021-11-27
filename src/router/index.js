@@ -35,6 +35,11 @@ const routes = [
     meta: {
       authRequired: true,
     },
+  },
+  {
+    path: '/poll/:id',
+    name: 'Poll',
+    component: () => import(/* webpackChunkName: "poll" */ '../views/Poll.vue'),
   }
 ]
 

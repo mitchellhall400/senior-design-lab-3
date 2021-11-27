@@ -60,9 +60,12 @@
         </v-list-item>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn outlined color="secondary"> Remind Poodlers </v-btn>
+          <v-btn icon color="secondary" @click="copyText(index)">
+            <v-icon>mdi-content-copy</v-icon>
+          </v-btn>
+          <v-btn outlined color="secondary">Remind All</v-btn>
           <v-btn @click="$router.push('/edit/' + index)" color="secondary">
-            Edit Poodle
+            Edit
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -140,6 +143,12 @@ export default {
         "/" +
         date.getFullYear().toString();
       return strTime + " on " + dateStr;
+    },
+    copyText(txt) {
+      navigator.clipboard.writeText(window.location.origin + '/poll/' + txt);
+      this.$root.toast.show({
+        message: "Copied to clipboard!",
+      })
     },
   },
   metaInfo: {
