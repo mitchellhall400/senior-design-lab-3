@@ -1,14 +1,11 @@
 <template>
   <v-container v-if="loading">
-    <v-skeleton-loader
-      class="ma-4"
-      type="article, actions"
-    ></v-skeleton-loader>
+    <v-skeleton-loader class="ma-4" type="article, actions"></v-skeleton-loader>
   </v-container>
   <v-container v-else>
     <v-card class="ma-4" elevation="8">
       <v-list-item three-line>
-        {{poll}}
+        {{ poll }}
       </v-list-item>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -24,8 +21,8 @@
 </template>
   
 <script>
-import { db, auth } from "../firebase";
-import { get, ref } from "firebase/database";
+import { db, auth } from "../firebase"
+import { get, ref } from "firebase/database"
 
 export default {
   name: "Edit",
@@ -34,28 +31,28 @@ export default {
     loading: false,
   }),
   created() {
-    this.determinePermission();
+    this.determinePermission()
   },
   methods: {
     determinePermission() {
-      (this.loading = true),
-        get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
-          if (snapshot.exists()) {
-            this.poll = snapshot.val();
-            if (this.poll.created_by == auth.currentUser.email) {
-              this.loading = false;
-            } else {
-              this.$router.push("/dashboard");
-            }
+      this.loading = true
+      get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
+        if (snapshot.exists()) {
+          this.poll = snapshot.val()
+          if (this.poll.created_by == auth.currentUser.email) {
+            this.loading = false
           } else {
-            this.$router.push("/dashboard");
+            this.$router.push("/dashboard")
           }
-        });
-      return true;
+        } else {
+          this.$router.push("/dashboard")
+        }
+      })
+      return true
     },
   },
   metaInfo: {
     title: "Edit",
   },
-};
+}
 </script>
