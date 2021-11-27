@@ -63,7 +63,7 @@
           <v-btn icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
-          <v-btn outlined color="secondary">Remind All</v-btn>
+          <v-btn @click="sendEmails(index, poll.poodlers, poll.title, poll.description)" outlined color="secondary">Remind All</v-btn>
           <v-btn @click="$router.push('/edit/' + index)" color="secondary">
             Edit
           </v-btn>
@@ -149,6 +149,14 @@ export default {
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
       })
+    },
+    sendEmails(id, emails, title, desc) {
+      window.open(`mailto:?bcc=` + emails + `&subject=Poodle Poll Reminder: ` + title + `
+&body=Hey Poodler!%0D%0A%0D%0AYou have been invited to participate in the 
+following Poodle Poll.%0D%0A%0D%0APoll: ` + title + `%0D%0A
+Description: ` + desc + `%0D%0A%0D%0ATake the poll here: ` + window.location.origin + '/poll/' + id + `
+%0D%0A%0D%0AHappy Poodling!%0D%0AThe Poodle Poll Team`
+      );
     },
   },
   metaInfo: {
