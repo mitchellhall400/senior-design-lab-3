@@ -147,7 +147,7 @@ export default {
     copyText(txt) {
       navigator.clipboard.writeText(window.location.origin + '/poll/' + txt);
       this.$root.toast.show({
-        message: "Copied to clipboard!",
+        message: "Poodle copied to clipboard!",
       })
     },
   },

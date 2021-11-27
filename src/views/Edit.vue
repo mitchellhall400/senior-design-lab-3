@@ -12,7 +12,7 @@
         <v-btn @click="$router.push('/dashboard')" outlined color="secondary">
           Cancel
         </v-btn>
-        <v-btn @click="$router.push('/dashboard')" color="secondary">
+        <v-btn @click="savePoll()" color="secondary">
           Save
         </v-btn>
       </v-card-actions>
@@ -50,6 +50,12 @@ export default {
       })
       return true
     },
+    savePoll() {
+      this.$root.toast.show({
+        message: "Poodle updated!",
+      })
+      this.$router.push('/dashboard')
+    }
   },
   metaInfo: {
     title: "Edit",
