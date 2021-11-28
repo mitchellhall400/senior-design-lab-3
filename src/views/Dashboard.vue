@@ -151,7 +151,7 @@ export default {
       })
     },
     sendEmails(id, emails, title, desc) {
-      window.open(`mailto:?bcc=` + emails + `&subject=Poodle Poll Reminder: ` + title + `
+      window.open(`mailto:?bcc=` + emails.replaceAll(',',';') + `&subject=Poodle Poll Reminder: ` + title + `
 &body=Hey Poodler!%0D%0A%0D%0AYou have been invited to participate in the 
 following Poodle Poll.%0D%0A%0D%0A` + title + `%0D%0A
 Description: ` + desc + `%0D%0A%0D%0ATake the poll here: ` + window.location.origin + '/poll/' + id + `
