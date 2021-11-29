@@ -4,9 +4,17 @@
   </v-container>
   <v-container v-else>
     <v-card class="ma-4" elevation="8">
-      <v-list-item three-line>
-        {{ poll }}
-      </v-list-item>
+      <v-card-title class="primary">
+        {{ poll.title }}
+      </v-card-title>
+      <v-list-item-content>
+        <v-list-item v-if="poll.description.replace(/\s/g, '').length">
+          <v-list-item-icon>
+            <v-icon class="pa-2">mdi-comment-text</v-icon>
+          </v-list-item-icon>
+          <div class="clamp-text">{{ poll.description }}</div></v-list-item
+        >
+      </v-list-item-content>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="$router.push('/dashboard')" color="secondary">
