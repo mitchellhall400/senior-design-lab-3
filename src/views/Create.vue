@@ -11,8 +11,6 @@
             required
             :rules="[rules.required, rules.min]"
             prepend-icon="mdi-label"
-            @input="$v.name.$touch()"
-            @blur="$v.name.$touch()"
           ></v-text-field>
           <v-textarea
             filled
@@ -26,8 +24,6 @@
             v-model="title"
             label="Location"
             prepend-icon="mdi-map-marker"
-            @input="$v.name.$touch()"
-            @blur="$v.name.$touch()"
           ></v-text-field>
           <v-select
             :items="timezones"
@@ -129,6 +125,7 @@
             auto-grow
             hint="Enter individually or a comma separated list"
             prepend-icon="mdi-account-group"
+            @change="verifyCombo()"
           >
             <template v-slot:selection="{ item }">
               <v-chip
@@ -142,9 +139,7 @@
             </template></v-combobox
           >
           <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
-          <v-btn block color="secondary" class="mb-4"
-            >Create
-          </v-btn>
+          <v-btn block color="secondary" class="mb-4">Create</v-btn>
           <v-btn
             block
             @click="$router.push('/dashboard')"
@@ -162,7 +157,7 @@
 export default {
   name: "Create",
   data: () => ({
-    title: '',
+    title: "",
     emails: [],
     dates: [],
     timeRangeStart: null,
@@ -244,7 +239,33 @@ export default {
       this.emails.splice(this.emails.indexOf(item), 1);
       this.emails = [...this.emails];
     },
-  }
+    verifyCombo() {
+      if (this.emails.length) {
+        if (
+          !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(
+            this.emails.at(-1)
+          )
+        ) {
+          var last = this.emails.pop().replace(/\s+/g, "").split(",");
+          var allGood = true;
+          last.forEach((email) => {
+            if (
+              !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)
+            ) {
+              allGood = false;
+            }
+          });
+          if (allGood) {
+            last.forEach((email) => {
+              if (!this.emails.includes(email)) {
+                this.emails = this.emails.concat(email);
+              }
+            });
+          }
+        }
+      }
+    },
+  },
 };
 </script>
 
