@@ -31,7 +31,7 @@
               poll.title
             }}</v-list-item-title>
             <v-list-item v-if="poll.description.replace(/\s/g, '').length"
-              ><v-icon style="align-items: top" class="pa-2"
+              ><v-icon class="pa-2"
                 >mdi-comment-text</v-icon
               >
               <div class="clamp-text">{{ poll.description }}</div></v-list-item

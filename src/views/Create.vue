@@ -2,13 +2,14 @@
   <v-container>
     <v-row align="center" justify="center">
       <v-card class="justify-center pa-4" max-width="800px" min-width="500px">
-        <v-form @submit="validateCreate">
+        <v-form>
           <div class="text-h5 mb-4">Create New Poodle</div>
           <v-text-field
             filled
             v-model="title"
             label="Title"
             required
+            :rules="[rules.required, rules.min]"
             prepend-icon="mdi-label"
             @input="$v.name.$touch()"
             @blur="$v.name.$touch()"
@@ -117,17 +118,31 @@
               </v-list-item-content>
             </v-list-item>
           </v-list>
-          <v-textarea
+          <v-combobox
+            v-model="emails"
+            chips
+            clearable
+            multiple
+            append-icon=""
             filled
-            name="poodlers"
-            label="Poodlers"
+            label="Poodlers Email's"
             auto-grow
-            placeholder="email1, email2, ect."
-            hint="comma separated list of emails"
+            hint="Enter individually or a comma separated list"
             prepend-icon="mdi-account-group"
-          ></v-textarea>
+          >
+            <template v-slot:selection="{ item }">
+              <v-chip
+                close
+                outlined
+                @click:close="remove(item)"
+                @input="alert('sadaf')"
+              >
+                {{ item }}
+              </v-chip>
+            </template></v-combobox
+          >
           <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
-          <v-btn block color="secondary" type="submit" class="mb-4"
+          <v-btn block color="secondary" class="mb-4"
             >Create
           </v-btn>
           <v-btn
@@ -147,6 +162,8 @@
 export default {
   name: "Create",
   data: () => ({
+    title: '',
+    emails: [],
     dates: [],
     timeRangeStart: null,
     timeRangeStop: null,
@@ -187,6 +204,10 @@ export default {
       "BET - Brazil Eastern Time",
       "CAT - Central African Time",
     ],
+    rules: {
+      required: (value) => !!value || "Required.",
+      min: (v) => (v && v.length >= 4) || "Min 4 characters",
+    },
   }),
   metaInfo: {
     title: "Create",
@@ -218,6 +239,12 @@ export default {
       }
     },
   },
+  methods: {
+    remove(item) {
+      this.emails.splice(this.emails.indexOf(item), 1);
+      this.emails = [...this.emails];
+    },
+  }
 };
 </script>
 
