@@ -139,14 +139,16 @@
             </template></v-combobox
           >
           <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
-          <v-btn block color="secondary" class="mb-4">Create</v-btn>
-          <v-btn
-            block
-            @click="$router.push('/dashboard')"
-            color="secondary"
-            outlined
-            >Cancel
-          </v-btn>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              @click="$router.push('/dashboard')"
+              color="secondary"
+              outlined
+              >Cancel
+            </v-btn>
+            <v-btn color="secondary">Create</v-btn>
+          </v-card-actions>
         </v-form>
       </v-card>
     </v-row>
