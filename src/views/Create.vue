@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    <v-row align="center" justify="center">
-      <v-card class="justify-center pa-4" max-width="800px" min-width="500px">
+      <v-card class="ma-4 pa-4" elevation="8">
         <v-form>
           <div class="text-h5 mb-4">Create New Poodle</div>
           <v-text-field
@@ -151,7 +150,6 @@
           </v-card-actions>
         </v-form>
       </v-card>
-    </v-row>
   </v-container>
 </template>
   
