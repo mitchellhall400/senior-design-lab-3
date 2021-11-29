@@ -1,155 +1,158 @@
 <template>
   <v-container>
-      <v-card class="ma-4 pa-4" elevation="8">
-        <v-form>
-          <div class="text-h5 mb-4">Create New Poodle</div>
-          <v-text-field
-            filled
-            v-model="title"
-            label="Title"
-            required
-            :rules="[rules.required, rules.min]"
-            prepend-icon="mdi-label"
-          ></v-text-field>
-          <v-textarea
-            filled
-            name="description"
-            label="Description"
-            auto-grow
-            prepend-icon="mdi-comment-text"
-          ></v-textarea>
-          <v-text-field
-            filled
-            v-model="title"
-            label="Location"
-            prepend-icon="mdi-map-marker"
-          ></v-text-field>
-          <v-select
-            :items="timezones"
-            filled
-            prepend-icon="mdi-map-clock"
-            value="Not Specified"
-            label="Time Zone"
-          ></v-select>
-          <v-list class="ml-0 pl-0 pr-0">
-            <v-card-title>Poodle - Date Range</v-card-title>
-            <v-list-item class="ml-0 pl-0 mr-0 pr-0">
-              <v-list-item-icon class="mr-0 pr-2">
-                <v-icon>mdi-calendar-collapse-horizontal</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-text-field
-                  filled
-                  v-model="dateRangeText"
-                  label="Poodle Date Range"
-                  hide-details
-                  disabled
-                ></v-text-field>
-                <v-date-picker
-                  v-model="dates"
-                  class="remove-top"
-                  range
-                  no-title
-                  color="primary"
-                  full-width
-                ></v-date-picker>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-          <v-list class="ml-0 pl-0 pr-0">
-            <v-card-title>Poodle - Time Range</v-card-title>
-            <v-list-item class="ml-0 pl-0 mr-0 pr-0">
-              <v-list-item-icon class="mr-0 pr-2">
-                <v-icon>mdi-timeline-clock</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-row>
-                  <v-col>
-                    <v-time-picker
-                      v-model="timeRangeStart"
-                      color="primary"
-                      full-width
-                      ampm-in-title
-                      :max="timeRangeStop"
-                    ></v-time-picker>
-                  </v-col>
-                  <v-col>
-                    <v-time-picker
-                      v-model="timeRangeStop"
-                      color="primary"
-                      full-width
-                      ampm-in-title
-                      :min="timeRangeStart"
-                    ></v-time-picker>
-                  </v-col>
-                </v-row>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-          <v-list class="ml-0 pl-0 pr-0">
-            <v-card-title>Poodle - Submission Close Time</v-card-title>
-            <v-list-item class="ml-0 pl-0 mr-0 pr-0">
-              <v-list-item-icon class="mr-0 pr-2">
-                <v-icon>mdi-calendar-end</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-row>
-                  <v-col>
-                    <v-date-picker
-                      v-model="closeDate"
-                      color="primary"
-                      full-width
-                    ></v-date-picker>
-                  </v-col>
-                  <v-col>
-                    <v-time-picker
-                      v-model="closeTime"
-                      color="primary"
-                      full-width
-                      ampm-in-title
-                    ></v-time-picker>
-                  </v-col>
-                </v-row>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-          <v-combobox
-            v-model="emails"
-            chips
-            clearable
-            multiple
-            append-icon=""
-            filled
-            label="Poodlers Email's"
-            auto-grow
-            hint="Enter individually or a comma separated list"
-            prepend-icon="mdi-account-group"
-            @change="verifyCombo()"
-          >
-            <template v-slot:selection="{ item }">
-              <v-chip
-                close
-                outlined
-                @click:close="remove(item)"
-                @input="alert('sadaf')"
-              >
-                {{ item }}
-              </v-chip>
-            </template></v-combobox
-          >
-          <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              @click="$router.push('/dashboard')"
-              color="secondary"
+    <v-card class="ma-4 pa-4" elevation="8">
+      <v-form>
+        <div class="text-h5 mb-4">Create New Poodle</div>
+        <v-text-field
+          filled
+          v-model="title"
+          label="Title"
+          required
+          :rules="[rules.required, rules.min]"
+          prepend-icon="mdi-label"
+        ></v-text-field>
+        <v-textarea
+          filled
+          name="description"
+          label="Description"
+          auto-grow
+          prepend-icon="mdi-comment-text"
+        ></v-textarea>
+        <v-text-field
+          filled
+          v-model="title"
+          label="Location"
+          prepend-icon="mdi-map-marker"
+        ></v-text-field>
+        <v-select
+          :items="timezones"
+          filled
+          prepend-icon="mdi-map-clock"
+          value="Not Specified"
+          label="Time Zone"
+        ></v-select>
+        <v-combobox
+          v-model="emails"
+          chips
+          clearable
+          multiple
+          append-icon=""
+          filled
+          label="Poodlers Email's"
+          auto-grow
+          hint="Enter individually or a comma separated list"
+          prepend-icon="mdi-account-group"
+          @change="verifyCombo()"
+        >
+          <template v-slot:selection="{ item }">
+            <v-chip
+              close
               outlined
-              >Cancel
-            </v-btn>
-            <v-btn color="secondary">Create</v-btn>
-          </v-card-actions>
-        </v-form>
-      </v-card>
+              @click:close="remove(item)"
+              @input="alert('sadaf')"
+            >
+              {{ item }}
+            </v-chip>
+          </template></v-combobox
+        >
+        <v-list class="ml-0 pl-0 pr-0">
+          <h3>Poodle - Date Range</h3>
+          <v-list-item class="ml-0 pl-0 mr-0 pr-0">
+            <v-list-item-icon class="mr-0 pr-2">
+              <v-icon>mdi-calendar-collapse-horizontal</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-text-field
+                filled
+                v-model="dateRangeText"
+                label="Poodle Date Range"
+                hide-details
+                disabled
+              ></v-text-field>
+              <v-date-picker
+                v-model="dates"
+                class="remove-top"
+                range
+                no-title
+                color="primary"
+                full-width
+              ></v-date-picker>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-list class="ml-0 pl-0 pr-0">
+          <h3>Poodle - Time Range</h3>
+          <v-list-item class="ml-0 pl-0 mr-0 pr-0">
+            <v-list-item-icon class="mr-0 pr-2">
+              <v-icon>mdi-timeline-clock</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-row>
+                <v-col>
+                  <h4>Start:</h4>
+                  <v-time-picker
+                    v-model="timeRangeStart"
+                    color="primary"
+                    full-width
+                    ampm-in-title
+                    :max="timeRangeStop"
+                  ></v-time-picker>
+                </v-col>
+                <v-col>
+                  <h4>End:</h4>
+                  <v-time-picker
+                    v-model="timeRangeStop"
+                    color="primary"
+                    full-width
+                    ampm-in-title
+                    :min="timeRangeStart"
+                  ></v-time-picker>
+                </v-col>
+              </v-row>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-list class="ml-0 pl-0 pr-0">
+          <h3>Poodle - Submission Close</h3>
+          <v-list-item class="ml-0 pl-0 mr-0 pr-0">
+            <v-list-item-icon class="mr-0 pr-2">
+              <v-icon>mdi-calendar-end</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-row>
+                <v-col>
+                  <h4>Date:</h4>
+                  <v-date-picker
+                    class="stand-height"
+                    v-model="closeDate"
+                    color="primary"
+                    full-width
+                  ></v-date-picker>
+                </v-col>
+                <v-col>
+                  <h4>Time:</h4>
+                  <v-time-picker
+                    class="stand-height"
+                    v-model="closeTime"
+                    color="primary"
+                    full-width
+                    ampm-in-title
+                  ></v-time-picker>
+                </v-col>
+              </v-row>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="$router.push('/dashboard')" color="secondary" outlined
+            >Cancel
+          </v-btn>
+          <v-btn color="secondary">Create</v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
   </v-container>
 </template>
   
@@ -274,7 +277,7 @@ export default {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.h-stand {
-  height: 380px;
+.stand-height {
+  height: 400px;
 }
 </style>
