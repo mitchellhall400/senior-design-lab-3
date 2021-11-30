@@ -31,6 +31,7 @@
           prepend-icon="mdi-map-clock"
           value="Not Specified"
           label="Time Zone"
+          v-model="timeZone" 
         ></v-select>
         <v-row>
           <v-col>
@@ -216,6 +217,7 @@ export default {
       "desired number of time slots per day",
       "desired length of time per time slot",
     ],
+    timeZone: "Not Specified", 
     timezones: [
       "Not Specified",
       "GMT - Greenwich Mean Time",
@@ -334,13 +336,24 @@ export default {
           if (this.poll.created_by == auth.currentUser.email) {
             this.title = this.poll.title
             this.description = this.poll.description
+            if (this.poll.timezone) {
+              this.timezones.forEach((val) => {
+                if (val.startsWith(this.poll.timezone)) {
+                  this.timeZone = val 
+                }
+              })  
+            }
+            else {
+              this.timeZone = "Not Specified" 
+            }
+            this.
+
             this.emails = this.poll.poodlers.replace(/\s+/g, "").split(",")
             this.dates = [this.poll.window_date_start, this.poll.window_date_end]
             this.timeRangeStart = this.poll.window_time_start
             this.timeRangeStop = this.poll.window_time_end
             this.closeDate = this.poll.close_date
-            this.closeTime = this.poll.close_time 
-
+            this.closeTime = this.poll.close_time
             this.published = this.poll.published 
             this.loading = false
           } else {
