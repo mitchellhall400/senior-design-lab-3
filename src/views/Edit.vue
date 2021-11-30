@@ -17,6 +17,7 @@
           label="Description"
           auto-grow
           prepend-icon="mdi-comment-text"
+          v-model="description"
         ></v-textarea>
         <v-text-field
           filled
@@ -174,13 +175,19 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
         <v-card-actions>
+          <v-switch
+            v-model="published"
+            inset
+            :label="published ? 'Poll published' : 'Poll not published'"
+            class="ml-4 pl-4"
+          ></v-switch>
           <v-spacer></v-spacer>
           <v-btn @click="$router.push('/dashboard')" color="secondary" outlined
             >Cancel
           </v-btn>
-          <v-btn color="secondary">Create</v-btn>
+          <v-btn color="secondary">Save</v-btn>
+
         </v-card-actions>
       </v-form>
     </v-card>
@@ -196,12 +203,14 @@ export default {
   data: () => ({
     poll: {},
     title: "",
+    description: "", 
     emails: [],
     dates: [],
     timeRangeStart: null,
     timeRangeStop: null,
     closeDate: null,
     closeTime: null,
+    published: false,
     selectedTimeOption: "desired number of time slots per day",
     timeslotOptions: [
       "desired number of time slots per day",
@@ -255,27 +264,27 @@ export default {
   },
   computed: {
     dateRangeText() {
-      var d1 = new Date(this.dates[0]);
-      d1.setDate(d1.getDate() + 1);
-      var d2 = new Date(this.dates[1]);
-      d2.setDate(d2.getDate() + 1);
+      var d1 = new Date(this.dates[0])
+      d1.setDate(d1.getDate() + 1)
+      var d2 = new Date(this.dates[1])
+      d2.setDate(d2.getDate() + 1)
       if (this.dates[0] == null) {
-        return "";
+        return ""
       } else if (this.dates[1] == null) {
-        return d1.toLocaleDateString("en-US") + " ~ ";
+        return d1.toLocaleDateString("en-US") + " ~ "
       } else {
         if (d1 > d2) {
           return (
             d2.toLocaleDateString("en-US") +
             " ~ " +
             d1.toLocaleDateString("en-US")
-          );
+          )
         } else {
           return (
             d1.toLocaleDateString("en-US") +
             " ~ " +
             d2.toLocaleDateString("en-US")
-          );
+          )
         }
       }
     },
@@ -283,13 +292,13 @@ export default {
   methods: {
     selectedTimeOptionText() {
       if (this.selectedTimeOption == "desired number of time slots per day") {
-        return "Number of Time Slots Per Day";
+        return "Number of Time Slots Per Day"
       }
-      return "Time Slot Length (Minutes)";
+      return "Time Slot Length (Minutes)"
     },
     remove(item) {
-      this.emails.splice(this.emails.indexOf(item), 1);
-      this.emails = [...this.emails];
+      this.emails.splice(this.emails.indexOf(item), 1)
+      this.emails = [...this.emails]
     },
     verifyCombo() {
       if (this.emails.length) {
@@ -298,21 +307,21 @@ export default {
             this.emails.at(-1)
           )
         ) {
-          var last = this.emails.pop().replace(/\s+/g, "").split(",");
-          var allGood = true;
+          var last = this.emails.pop().replace(/\s+/g, "").split(",")
+          var allGood = true
           last.forEach((email) => {
             if (
               !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)
             ) {
-              allGood = false;
+              allGood = false
             }
-          });
+          })
           if (allGood) {
             last.forEach((email) => {
               if (!this.emails.includes(email)) {
-                this.emails = this.emails.concat(email);
+                this.emails = this.emails.concat(email)
               }
-            });
+            })
           }
         }
       }
@@ -324,8 +333,15 @@ export default {
           this.poll = snapshot.val()
           if (this.poll.created_by == auth.currentUser.email) {
             this.title = this.poll.title
-            this.
+            this.description = this.poll.description
+            this.emails = this.poll.poodlers.replace(/\s+/g, "").split(",")
+            this.dates = [this.poll.window_date_start, this.poll.window_date_end]
+            this.timeRangeStart = this.poll.window_time_start
+            this.timeRangeStop = this.poll.window_time_end
+            this.closeDate = this.poll.close_date
+            this.closeTime = this.poll.close_time 
 
+            this.published = this.poll.published 
             this.loading = false
           } else {
             this.$router.push("/dashboard")
@@ -337,7 +353,7 @@ export default {
       return true
     },
   },
-};
+}
 </script>
 
 <style scoped>
