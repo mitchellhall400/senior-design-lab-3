@@ -31,6 +31,37 @@
           value="Not Specified"
           label="Time Zone"
         ></v-select>
+        <v-row>
+          <v-col>
+            <v-text-field
+              class="pa-0"
+              filled
+              label="Number of Votes Per Time Slot"
+              prepend-icon="mdi-check-all"
+            ></v-text-field>
+            <v-select
+              class="pa-0"
+              :items="timeslotOptions"
+              v-model="selectedTimeOption"
+              filled
+              prepend-icon="mdi-application-cog"
+              value="Not Specified"
+              label="Create time slots based on:"
+            ></v-select>
+          </v-col>
+          <v-col>
+            <v-text-field
+              class="pa-0"
+              filled
+              label="Number of Votes Per User"
+            ></v-text-field>
+            <v-text-field
+              class="pa-0"
+              filled
+              :label="selectedTimeOptionText()"
+            ></v-text-field>
+          </v-col>
+        </v-row>
         <v-combobox
           v-model="emails"
           chips
@@ -53,8 +84,8 @@
             >
               {{ item }}
             </v-chip>
-          </template></v-combobox
-        >
+          </template>
+        </v-combobox>
         <v-list class="ml-0 pl-0 pr-0">
           <h3>Poodle - Date Range</h3>
           <v-list-item class="ml-0 pl-0 mr-0 pr-0">
@@ -167,6 +198,11 @@ export default {
     timeRangeStop: null,
     closeDate: null,
     closeTime: null,
+    selectedTimeOption: "desired number of time slots per day",
+    timeslotOptions: [
+      "desired number of time slots per day",
+      "desired length of time per time slot",
+    ],
     timezones: [
       "Not Specified",
       "GMT - Greenwich Mean Time",
@@ -238,6 +274,12 @@ export default {
     },
   },
   methods: {
+    selectedTimeOptionText() {
+      if (this.selectedTimeOption == "desired number of time slots per day") {
+        return "Number of Time Slots Per Day";
+      }
+      return "Time Slot Length (Minutes)";
+    },
     remove(item) {
       this.emails.splice(this.emails.indexOf(item), 1);
       this.emails = [...this.emails];
