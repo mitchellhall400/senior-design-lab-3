@@ -8,6 +8,13 @@
         {{ poll.title }}
       </v-card-title>
       <v-list-item-content>
+        <v-list-item v-if="poll.close_date.replace(/\s/g, '').length">
+          <v-list-item-icon class="mr-3">
+            <v-icon>mdi-calendar-end</v-icon>
+          </v-list-item-icon>
+          Poll closes on {{ poll.close_date }} at
+          {{ getTmz24Time(poll.close_time, poll.timezone) }}
+        </v-list-item>
         <v-list-item v-if="poll.location.replace(/\s/g, '').length">
           <v-list-item-icon class="mr-3">
             <v-icon>mdi-map-marker</v-icon>
@@ -72,15 +79,21 @@
           <v-card min-width="350px">
             <v-toolbar flat :color="selectedEvent.color">
               <v-icon class="mr-2">mdi-calendar</v-icon>
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+              <v-toolbar-title class="pb-1">{{
+                selectedEvent.name
+              }}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn icon>
                 <v-icon @click="selectedOpen = false">mdi-close</v-icon>
               </v-btn>
             </v-toolbar>
             <v-card-text>
-              {{ new Date(selectedEvent.start).toLocaleTimeString('en-US') }}
-              <br>
+              {{
+                simpleTime(selectedEvent.start) +
+                " - " +
+                simpleTime(selectedEvent.end)
+              }}
+              <br />
               {{ selectedEvent.details }}
             </v-card-text>
             <v-card-actions>
@@ -159,10 +172,10 @@ export default {
       return true;
     },
     generateEvents() {
-      var dEnd = new Date(this.poll.window_date_end)
-      var dCur = new Date(this.poll.window_date_start)
-      dEnd.setDate(dEnd.getDate() + 1)
-      dCur.setDate(dCur.getDate() + 1)
+      var dEnd = new Date(this.poll.window_date_end);
+      var dCur = new Date(this.poll.window_date_start);
+      dEnd.setDate(dEnd.getDate() + 1);
+      dCur.setDate(dCur.getDate() + 1);
       while (dCur <= dEnd) {
         var date =
           dCur.getFullYear() +
@@ -182,7 +195,7 @@ export default {
             selected: false,
           });
         }
-        dCur.setDate(dCur.getDate() + 1)
+        dCur.setDate(dCur.getDate() + 1);
       }
     },
     addNIntervals(n, time) {
@@ -233,6 +246,20 @@ export default {
         this.selectedEvent.selected = true;
       }
     },
+    simpleTime(time) {
+      var str = new Date(time).toLocaleTimeString("en-US");
+      str = str.slice(0, str.length - 6) + str.slice(str.length - 3);
+      return str;
+    },
+    getTmz24Time(str, tzn) {
+      var hours = parseInt(str.split(":")[0]);
+      var minutes = parseInt(str.split(":")[1]);
+      var ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      return hours + ":" + minutes + " " + ampm + " " + tzn;
+    },
   },
   computed: {
     calendarTitle() {
@@ -250,12 +277,22 @@ export default {
         "November",
         "December",
       ];
-      var date = new Date(this.focus)
-      date.setDate(date.getDate() - date.getDay())
-      var from = months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear()
-      date.setDate(date.getDate() + 6)
-      var to = months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear()
-      return from + ' - ' + to
+      var date = new Date(this.focus);
+      date.setDate(date.getDate() - date.getDay());
+      var from =
+        months[date.getMonth()] +
+        " " +
+        date.getDate() +
+        ", " +
+        date.getFullYear();
+      date.setDate(date.getDate() + 6);
+      var to =
+        months[date.getMonth()] +
+        " " +
+        date.getDate() +
+        ", " +
+        date.getFullYear();
+      return from + " - " + to;
     },
   },
   metaInfo: {
