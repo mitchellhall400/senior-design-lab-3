@@ -40,6 +40,7 @@
               filled
               label="Number of Votes Per Time Slot"
               prepend-icon="mdi-check-all"
+              v-model="votesPerTimeslot"
             ></v-text-field>
             <v-select
               class="pa-0"
@@ -56,11 +57,13 @@
               class="pa-0"
               filled
               label="Number of Votes Per User"
+              v-model="votesPerUser"
             ></v-text-field>
             <v-text-field
               class="pa-0"
               filled
               :label="selectedTimeOptionText()"
+              v-model="timeslotCreationNumber"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -187,7 +190,9 @@
           <v-btn @click="$router.push('/dashboard')" color="secondary" outlined
             >Cancel
           </v-btn>
-          <v-btn color="secondary">Save</v-btn>
+          <v-btn color="secondary"
+          >Save
+          </v-btn>
 
         </v-card-actions>
       </v-form>
@@ -205,6 +210,10 @@ export default {
     poll: {},
     title: "",
     description: "", 
+    votesPerTimeslot: "",
+    votesPerUser: "",
+    selectedTimeOption: "desired number of time slots per day",
+    timeslotCreationNumber: "",
     emails: [],
     dates: [],
     timeRangeStart: null,
@@ -212,7 +221,8 @@ export default {
     closeDate: null,
     closeTime: null,
     published: false,
-    selectedTimeOption: "desired number of time slots per day",
+
+    // constant vars for v-selects
     timeslotOptions: [
       "desired number of time slots per day",
       "desired length of time per time slot",
@@ -346,8 +356,9 @@ export default {
             else {
               this.timeZone = "Not Specified" 
             }
-            this.
-
+            this.votesPerTimeslot = this.poll.votes_per_timeslot
+            this.votesPerUser = this.poll.votes_per_users 
+            this.timeslotCreationNumber = this.poll.time_slots_per_day
             this.emails = this.poll.poodlers.replace(/\s+/g, "").split(",")
             this.dates = [this.poll.window_date_start, this.poll.window_date_end]
             this.timeRangeStart = this.poll.window_time_start
