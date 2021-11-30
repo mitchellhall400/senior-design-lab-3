@@ -4,76 +4,73 @@
       <v-form>
         <div class="text-h5 mb-4">Create New Poodle</div>
         <v-text-field
-          filled
           v-model="title"
           label="Title"
-          required
-          :rules="[rules.required, rules.min]"
           prepend-icon="mdi-label"
+          filled
+          :rules="[rules.required, rules.min]"
         ></v-text-field>
         <v-textarea
-          filled
-          name="description"
+          v-model="description"
           label="Description"
-          auto-grow
           prepend-icon="mdi-comment-text"
+          auto-grow
+          filled
         ></v-textarea>
         <v-text-field
-          filled
-          v-model="title"
+          v-model="location"
           label="Location"
           prepend-icon="mdi-map-marker"
+          filled
         ></v-text-field>
         <v-select
+          v-model="timeZone"
+          label="Time Zone"
+          prepend-icon="mdi-map-clock"
           :items="timezones"
           filled
-          prepend-icon="mdi-map-clock"
-          value="Not Specified"
-          label="Time Zone"
         ></v-select>
         <v-row>
           <v-col>
             <v-text-field
-              class="pa-0"
-              filled
+              v-model="votesPerTimeslot"
               label="Number of Votes Per Time Slot"
               prepend-icon="mdi-check-all"
+              filled
             ></v-text-field>
             <v-select
-              class="pa-0"
-              :items="timeslotOptions"
               v-model="selectedTimeOption"
-              filled
-              prepend-icon="mdi-application-cog"
-              value="Not Specified"
               label="Create time slots based on:"
+              prepend-icon="mdi-application-cog"
+              :items="timeslotOptions"
+              filled
             ></v-select>
           </v-col>
           <v-col>
             <v-text-field
-              class="pa-0"
-              filled
+              v-model="votesPerUser"
               label="Number of Votes Per User"
+              filled
             ></v-text-field>
             <v-text-field
-              class="pa-0"
+              v-model="timeslotCreationNumber"
               filled
-              :label="selectedTimeOptionText()"
+              :label="selectedTimeOptionLabel()"
             ></v-text-field>
           </v-col>
         </v-row>
         <v-combobox
           v-model="emails"
+          label="Poodlers Email's"
+          prepend-icon="mdi-account-group"
+          hint="Enter individually or a comma separated list"
+          @change="verifyCombo()"
+          append-icon=""
           chips
           clearable
           multiple
-          append-icon=""
           filled
-          label="Poodlers Email's"
           auto-grow
-          hint="Enter individually or a comma separated list"
-          prepend-icon="mdi-account-group"
-          @change="verifyCombo()"
         >
           <template v-slot:selection="{ item }">
             <v-chip
@@ -94,11 +91,11 @@
             </v-list-item-icon>
             <v-list-item-content>
               <v-text-field
-                filled
                 v-model="dateRangeText"
                 label="Poodle Date Range"
+                filled
                 hide-details
-                disabled
+                readonly
               ></v-text-field>
               <v-date-picker
                 v-model="dates"
@@ -154,8 +151,8 @@
                 <v-col>
                   <h4>Date:</h4>
                   <v-date-picker
-                    class="stand-height"
                     v-model="closeDate"
+                    class="stand-height"
                     color="primary"
                     full-width
                   ></v-date-picker>
@@ -163,8 +160,8 @@
                 <v-col>
                   <h4>Time:</h4>
                   <v-time-picker
-                    class="stand-height"
                     v-model="closeTime"
+                    class="stand-height"
                     color="primary"
                     full-width
                     ampm-in-title
@@ -191,14 +188,23 @@
 export default {
   name: "Create",
   data: () => ({
+    // v-model field vars
     title: "",
+    description: "",
+    location: "",
+    timeZone: "Not Specified",
+    votesPerTimeslot: "",
+    selectedTimeOption: "desired number of time slots per day",
+    votesPerUser: "",
+    timeslotCreationNumber: "",
     emails: [],
     dates: [],
     timeRangeStart: null,
     timeRangeStop: null,
     closeDate: null,
     closeTime: null,
-    selectedTimeOption: "desired number of time slots per day",
+
+    // constant vars for v-selects
     timeslotOptions: [
       "desired number of time slots per day",
       "desired length of time per time slot",
@@ -274,7 +280,7 @@ export default {
     },
   },
   methods: {
-    selectedTimeOptionText() {
+    selectedTimeOptionLabel() {
       if (this.selectedTimeOption == "desired number of time slots per day") {
         return "Number of Time Slots Per Day";
       }
