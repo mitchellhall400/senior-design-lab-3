@@ -191,15 +191,13 @@
 import { db, auth } from "../firebase"
 import { get, ref } from "firebase/database"
 
-
-
 export default {
   name: "Edit",
   data: () => ({
+    poll: {},
     title: "",
     emails: [],
     dates: [],
-    poll: {},
     timeRangeStart: null,
     timeRangeStop: null,
     closeDate: null,
@@ -325,6 +323,9 @@ export default {
         if (snapshot.exists()) {
           this.poll = snapshot.val()
           if (this.poll.created_by == auth.currentUser.email) {
+            this.title = this.poll.title
+            this.
+
             this.loading = false
           } else {
             this.$router.push("/dashboard")
