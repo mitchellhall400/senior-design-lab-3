@@ -31,9 +31,7 @@
               poll.title
             }}</v-list-item-title>
             <v-list-item v-if="poll.description.replace(/\s/g, '').length"
-              ><v-icon class="pa-2"
-                >mdi-comment-text</v-icon
-              >
+              ><v-icon class="pa-2">mdi-comment-text</v-icon>
               <div class="clamp-text">{{ poll.description }}</div></v-list-item
             >
             <v-list-item v-if="poll.location.replace(/\s/g, '').length"
@@ -42,13 +40,14 @@
             >
             <v-list-item
               ><v-icon class="pa-2">mdi-calendar-collapse-horizontal</v-icon
-              >From {{ poll.window_date_start }} to
+              >Polling from {{ poll.window_date_start }} to
               {{ poll.window_date_end }}</v-list-item
             >
-            <v-list-item v-if="poll.closes_at.replace(/\s/g, '').length"
-              ><v-icon class="pa-2">mdi-calendar-end</v-icon>Closes at
-              {{ getClosesAt(poll.closes_at, poll.timezone) }}</v-list-item
-            >
+            <v-list-item v-if="poll.close_date.replace(/\s/g, '').length"
+              ><v-icon class="pa-2">mdi-calendar-end</v-icon> Poll closes on
+              {{ poll.close_date }} at
+              {{ getTmz24Time(poll.close_time, poll.timezone) }}
+            </v-list-item>
             <v-list-item v-if="poll.published"
               ><v-icon class="pa-2">mdi-publish</v-icon>Published</v-list-item
             >
@@ -63,7 +62,14 @@
           <v-btn icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
-          <v-btn @click="sendEmails(index, poll.poodlers, poll.title, poll.description)" outlined color="secondary">Remind All</v-btn>
+          <v-btn
+            @click="
+              sendEmails(index, poll.poodlers, poll.title, poll.description)
+            "
+            outlined
+            color="secondary"
+            >Remind All</v-btn
+          >
           <v-btn @click="$router.push('/edit/' + index)" color="secondary">
             Edit
           </v-btn>
@@ -124,9 +130,8 @@ export default {
       });
     },
     getTmz24Time(str, tzn) {
-      var date = new Date(str);
-      var hours = date.getHours();
-      var minutes = date.getMinutes();
+      var hours = parseInt(str.split(":")[0]);
+      var minutes = parseInt(str.split(":")[1]);
       var ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
@@ -145,16 +150,29 @@ export default {
       return strTime + " on " + dateStr;
     },
     copyText(txt) {
-      navigator.clipboard.writeText(window.location.origin + '/poll/' + txt);
+      navigator.clipboard.writeText(window.location.origin + "/poll/" + txt);
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
-      })
+      });
     },
     sendEmails(id, emails, title, desc) {
-      window.open(`mailto:?bcc=` + emails.replaceAll(',',';') + `&subject=Poodle Poll Reminder: ` + title + `
+      window.open(
+        `mailto:?bcc=` +
+          emails.replaceAll(",", ";") +
+          `&subject=Poodle Poll Reminder: ` +
+          title +
+          `
 &body=Hey Poodler!%0D%0A%0D%0AYou have been invited to participate in the 
-following Poodle Poll.%0D%0A%0D%0A` + title + `%0D%0A
-Description: ` + desc + `%0D%0A%0D%0ATake the poll here: ` + window.location.origin + '/poll/' + id + `
+following Poodle Poll.%0D%0A%0D%0A` +
+          title +
+          `%0D%0A
+Description: ` +
+          desc +
+          `%0D%0A%0D%0ATake the poll here: ` +
+          window.location.origin +
+          "/poll/" +
+          id +
+          `
 %0D%0A%0D%0AHappy Poodling!%0D%0AThe Poodle Poll Team`
       );
     },
