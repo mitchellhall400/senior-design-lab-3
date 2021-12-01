@@ -24,7 +24,7 @@
           filled
         ></v-text-field>
         <v-select
-          v-model="timeZone"
+          v-model="timezone"
           label="Time Zone"
           prepend-icon="mdi-map-clock"
           :items="timezones"
@@ -100,6 +100,7 @@
               <v-date-picker
                 v-model="dates"
                 class="remove-top"
+                @input="updateDateRangeText()"
                 range
                 no-title
                 color="primary"
@@ -171,13 +172,17 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <v-checkbox name="publish" label="Publish with creation"></v-checkbox>
+        <v-checkbox 
+          v-model="published"
+          name="publish" 
+          label="Publish with creation"
+        ></v-checkbox>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="$router.push('/dashboard')" color="secondary" outlined
             >Cancel
           </v-btn>
-          <v-btn color="secondary">Create</v-btn>
+          <v-btn @click.prevent="createPoll" color="secondary">Create</v-btn>
         </v-card-actions>
       </v-form>
     </v-card>
@@ -185,6 +190,9 @@
 </template>
   
 <script>
+import { db, auth } from "../firebase";
+import { push, ref } from "firebase/database";
+
 export default {
   name: "Create",
   data: () => ({
@@ -192,17 +200,19 @@ export default {
     title: "",
     description: "",
     location: "",
-    timeZone: "Not Specified",
+    timezone: "Not Specified",
     votesPerTimeslot: "",
     selectedTimeOption: "desired number of time slots per day",
     votesPerUser: "",
     timeslotCreationNumber: "",
     emails: [],
+    dateRangeText: "",
     dates: [],
     timeRangeStart: null,
     timeRangeStop: null,
     closeDate: null,
     closeTime: null,
+    published: false,
 
     // constant vars for v-selects
     timeslotOptions: [
@@ -252,34 +262,31 @@ export default {
   metaInfo: {
     title: "Create",
   },
-  computed: {
-    dateRangeText() {
+  methods: {
+    updateDateRangeText() {
       var d1 = new Date(this.dates[0]);
       d1.setDate(d1.getDate() + 1);
       var d2 = new Date(this.dates[1]);
       d2.setDate(d2.getDate() + 1);
       if (this.dates[0] == null) {
-        return "";
+        this.dateRangeText = "";
       } else if (this.dates[1] == null) {
-        return d1.toLocaleDateString("en-US") + " ~ ";
+        this.dateRangeText = d1.toLocaleDateString("en-US") + " ~ ";
       } else {
         if (d1 > d2) {
-          return (
+          [this.dates[0], this.dates[1]] = [this.dates[1], this.dates[0]];
+          this.dateRangeText =
             d2.toLocaleDateString("en-US") +
             " ~ " +
-            d1.toLocaleDateString("en-US")
-          );
+            d1.toLocaleDateString("en-US");
         } else {
-          return (
+          this.dateRangeText =
             d1.toLocaleDateString("en-US") +
             " ~ " +
-            d2.toLocaleDateString("en-US")
-          );
+            d2.toLocaleDateString("en-US");
         }
       }
     },
-  },
-  methods: {
     selectedTimeOptionLabel() {
       if (this.selectedTimeOption == "desired number of time slots per day") {
         return "Number of Time Slots Per Day";
@@ -315,6 +322,41 @@ export default {
           }
         }
       }
+    },
+    createPoll() {
+      // process timezone
+      var dbTimezone = null;
+      if (this.timezone == "Not Specified") {
+        dbTimezone = "";
+      } else {
+        dbTimezone = this.timezone.substring(0, 3);
+      }
+      var dCur = new Date(this.closeDate);
+
+      push(ref(db, "polls"), {
+        close_date: dCur.getFullYear() +
+          "-" +
+          (dCur.getMonth() + 1) +
+          "-" +
+          (dCur.getDate()+1),
+        close_time: this.closeTime,
+        created_by: auth.currentUser.email,
+        description: this.description,
+        location: this.location,
+        poodlers: this.emails.join(","),
+        published: this.published,
+        time_slot_duration: "",
+        time_slots: {},
+        time_slots_per_day: "5",
+        timezone: dbTimezone,
+        title: this.title,
+        votes_per_timeslot: this.votesPerTimeslot,
+        votes_per_users: this.votesPerUser,
+        window_date_end: this.dates[1],
+        window_date_start: this.dates[0],
+        window_time_end: this.timeRangeStop,
+        window_time_start: this.timeRangeStart,
+      });
     },
   },
 };
