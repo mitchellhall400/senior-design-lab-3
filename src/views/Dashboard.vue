@@ -56,7 +56,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn icon color="secondary" @click="openPoll(index)">
-            <v-icon>mdi-open-in-new</v-icon>
+            <v-icon>mdi-eye</v-icon>
           </v-btn>
           <v-btn icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>

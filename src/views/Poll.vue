@@ -251,6 +251,7 @@ export default {
       nativeEvent.stopPropagation();
     },
     reservation() {
+      this.selectedOpen = false
       if (this.selectedEvent.selected) {
         this.selectedEvent.color = "primary";
         this.selectedEvent.selected = false;
