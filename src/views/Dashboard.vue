@@ -55,6 +55,9 @@
         >
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn icon color="secondary" @click="openPoll(index)">
+            <v-icon>mdi-open-in-new</v-icon>
+          </v-btn>
           <v-btn icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
@@ -150,6 +153,9 @@ export default {
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
       });
+    },
+    openPoll(txt) {
+      window.open(window.location.origin + "/poll/" + txt, '_blank')
     },
     sendEmails(id, emails, title, desc) {
       window.open(
