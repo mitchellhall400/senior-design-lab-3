@@ -333,6 +333,16 @@ export default {
       }
       var dCur = new Date(this.closeDate);
 
+      // process timeslot number to store
+      var timeSlotDuration = "";
+      var timeSlotPerDay = "";
+      if (this.selectedTimeOption == "desired number of time slots per day") {
+        timeSlotPerDay = this.timeslotCreationNumber;
+      }
+      else {
+        timeSlotDuration = this.timeslotCreationNumber;
+      }
+
       push(ref(db, "polls"), {
         close_date: dCur.getFullYear() +
           "-" +
@@ -345,9 +355,9 @@ export default {
         location: this.location,
         poodlers: this.emails.join(","),
         published: this.published,
-        time_slot_duration: "",
+        time_slot_duration: timeSlotDuration,
         time_slots: {},
-        time_slots_per_day: "5",
+        time_slots_per_day: timeSlotPerDay,
         timezone: dbTimezone,
         title: this.title,
         votes_per_timeslot: this.votesPerTimeslot,
