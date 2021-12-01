@@ -21,7 +21,7 @@
         ></v-textarea>
         <v-text-field
           filled
-          v-model="title"
+          v-model="location"
           label="Location"
           prepend-icon="mdi-map-marker"
         ></v-text-field>
@@ -209,6 +209,7 @@ export default {
   data: () => ({
     poll: {},
     title: "",
+    location: "",
     description: "", 
     votesPerTimeslot: "",
     votesPerUser: "",
@@ -346,6 +347,7 @@ export default {
           if (this.poll.created_by == auth.currentUser.email) {
             this.title = this.poll.title
             this.description = this.poll.description
+            this.location = this.poll.location
             if (this.poll.timezone) {
               this.timezones.forEach((val) => {
                 if (val.startsWith(this.poll.timezone)) {
