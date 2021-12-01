@@ -127,6 +127,7 @@ import { get, ref } from "firebase/database";
 export default {
   name: "Edit",
   data: () => ({
+    numSelected: 0,
     focus: "",
     poll: {},
     loading: false,
@@ -151,20 +152,25 @@ export default {
       get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
         if (snapshot.exists()) {
           this.poll = snapshot.val();
-          this.focus = this.poll.window_date_start;
-          var start = this.poll.window_time_start.split(":");
-          var end = this.poll.window_time_end.split(":");
-          var windowMinutes =
-            parseInt(end[0] - start[0]) * 60 + parseInt(end[1] - start[1]);
-          if (this.poll.time_slot_duration) {
-            this.intervalMinutes = this.poll.time_slot_duration;
-            this.intervalCount = windowMinutes / this.intervalMinutes;
-          } else {
-            this.intervalMinutes = windowMinutes / this.poll.time_slots_per_day;
-            this.intervalCount = windowMinutes / this.intervalMinutes;
+          if(this.poll.published) {
+            this.focus = this.poll.window_date_start;
+            var start = this.poll.window_time_start.split(":");
+            var end = this.poll.window_time_end.split(":");
+            var windowMinutes =
+              parseInt(end[0] - start[0]) * 60 + parseInt(end[1] - start[1]);
+            if (this.poll.time_slot_duration) {
+              this.intervalMinutes = this.poll.time_slot_duration;
+              this.intervalCount = windowMinutes / this.intervalMinutes;
+            } else {
+              this.intervalMinutes = windowMinutes / this.poll.time_slots_per_day;
+              this.intervalCount = windowMinutes / this.intervalMinutes;
+            }
+            this.generateEvents();
+            this.loading = false;
           }
-          this.generateEvents();
-          this.loading = false;
+          else {
+            this.$router.push("/dashboard");
+          }
         } else {
           this.$router.push("/dashboard");
         }
@@ -238,6 +244,7 @@ export default {
       nativeEvent.stopPropagation();
     },
     reservation() {
+      this.numSelected++
       if (this.selectedEvent.selected) {
         this.selectedEvent.color = "primary";
         this.selectedEvent.selected = false;
