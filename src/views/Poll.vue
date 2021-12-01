@@ -60,7 +60,8 @@
         </v-container>
         <v-spacer></v-spacer>
         <v-container v-if="poll.timezone" class="mr-4 pa-0 pt-4 text-right">
-          <strong>Selections: </strong>{{ numSelected }} / {{ poll.votes_per_users }}
+          <strong>Selections: </strong>{{ numSelected }} /
+          {{ poll.votes_per_users }}
         </v-container>
       </v-container>
       <v-sheet class="ma-4">
@@ -118,7 +119,7 @@
       </v-sheet>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="$router.push('/dashboard')" color="secondary">
+        <v-btn @click="$router.push('/dashboard')" color="secondary" :disabled="!numSelected">
           Submit
         </v-btn>
       </v-card-actions>
@@ -157,7 +158,7 @@ export default {
       get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
         if (snapshot.exists()) {
           this.poll = snapshot.val();
-          if(this.poll.published) {
+          if (this.poll.published) {
             this.focus = this.poll.window_date_start;
             var start = this.poll.window_time_start.split(":");
             var end = this.poll.window_time_end.split(":");
@@ -167,13 +168,13 @@ export default {
               this.intervalMinutes = this.poll.time_slot_duration;
               this.intervalCount = windowMinutes / this.intervalMinutes;
             } else {
-              this.intervalMinutes = windowMinutes / this.poll.time_slots_per_day;
+              this.intervalMinutes =
+                windowMinutes / this.poll.time_slots_per_day;
               this.intervalCount = windowMinutes / this.intervalMinutes;
             }
             this.generateEvents();
             this.loading = false;
-          }
-          else {
+          } else {
             this.$router.push("/dashboard");
           }
         } else {
@@ -251,28 +252,28 @@ export default {
     },
     reservation() {
       if (this.selectedEvent.selected) {
-        this.selectedEvent.color = "primary"
-        this.selectedEvent.selected = false
-        if(this.numSelected == this.poll.votes_per_users) {
+        this.selectedEvent.color = "primary";
+        this.selectedEvent.selected = false;
+        if (this.numSelected == this.poll.votes_per_users) {
           this.events.forEach((event) => {
-            if(event.disabled) {
-              event.color = "primary"
-              event.disabled = false
+            if (event.disabled) {
+              event.color = "primary";
+              event.disabled = false;
             }
-          })
+          });
         }
-        this.numSelected--
+        this.numSelected--;
       } else {
-        this.selectedEvent.color = "secondary"
-        this.selectedEvent.selected = true
-        this.numSelected++
-        if(this.numSelected == this.poll.votes_per_users) {
+        this.selectedEvent.color = "secondary";
+        this.selectedEvent.selected = true;
+        this.numSelected++;
+        if (this.numSelected == this.poll.votes_per_users) {
           this.events.forEach((event) => {
-            if(!event.selected && !event.full) {
-              event.color = "grey"
-              event.disabled = true
+            if (!event.selected && !event.full) {
+              event.color = "grey";
+              event.disabled = true;
             }
-          })
+          });
         }
       }
     },
