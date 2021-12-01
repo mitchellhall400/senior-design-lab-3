@@ -35,7 +35,7 @@
           label="Identifier"
           hint="Name, email, team, etc."
           required
-          :rules="[rules.required, rules.min]"
+          :rules="[rules.required]"
           prepend-icon="mdi-form-textbox"
         ></v-text-field>
       </v-form>
@@ -54,8 +54,14 @@
         <h3 class="pt-1">{{ calendarTitle }}</h3>
       </v-container>
       <v-divider></v-divider>
-      <v-container v-if="poll.timezone" class="ml-4 mr-4 pa-0 pt-4">
-        <strong>Timezone: </strong>{{ poll.timezone }}
+      <v-container d-flex>
+        <v-container v-if="poll.timezone" class="ml-4 pa-0 pt-4">
+          <strong>Timezone: </strong>{{ poll.timezone }}
+        </v-container>
+        <v-spacer></v-spacer>
+        <v-container v-if="poll.timezone" class="mr-4 pa-0 pt-4 text-right">
+          <strong>Selections: </strong>{{ numSelected }} / {{ poll.votes_per_users }}
+        </v-container>
       </v-container>
       <v-sheet class="ma-4">
         <v-calendar
@@ -99,7 +105,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
-                :disabled="selectedEvent.full"
+                :disabled="selectedEvent.full || selectedEvent.disabled"
                 color="secondary"
                 @click="reservation"
               >
@@ -140,7 +146,6 @@ export default {
     events: [],
     rules: {
       required: (value) => !!value || "Required.",
-      min: (v) => (v && v.length >= 4) || "Min 4 characters",
     },
   }),
   created() {
@@ -192,13 +197,14 @@ export default {
           " ";
         for (var i = 0; i < this.intervalCount; i++) {
           this.events.push({
-            name: "(0/2)",
+            name: "(" + 0 + "/" + this.poll.votes_per_timeslot + ")",
             start: date + this.addNIntervals(i, this.poll.window_time_start),
             end: date + this.addNIntervals(i + 1, this.poll.window_time_start),
-            color: "primary",
+            color: i % 2 == 0 ? "primary" : "grey",
             details: "This time slot is empty.",
-            full: false,
+            full: i % 2 == 0 ? false : true,
             selected: false,
+            disabled: false,
           });
         }
         dCur.setDate(dCur.getDate() + 1);
@@ -244,13 +250,30 @@ export default {
       nativeEvent.stopPropagation();
     },
     reservation() {
-      this.numSelected++
       if (this.selectedEvent.selected) {
-        this.selectedEvent.color = "primary";
-        this.selectedEvent.selected = false;
+        this.selectedEvent.color = "primary"
+        this.selectedEvent.selected = false
+        if(this.numSelected == this.poll.votes_per_users) {
+          this.events.forEach((event) => {
+            if(event.disabled) {
+              event.color = "primary"
+              event.disabled = false
+            }
+          })
+        }
+        this.numSelected--
       } else {
-        this.selectedEvent.color = "secondary";
-        this.selectedEvent.selected = true;
+        this.selectedEvent.color = "secondary"
+        this.selectedEvent.selected = true
+        this.numSelected++
+        if(this.numSelected == this.poll.votes_per_users) {
+          this.events.forEach((event) => {
+            if(!event.selected && !event.full) {
+              event.color = "grey"
+              event.disabled = true
+            }
+          })
+        }
       }
     },
     simpleTime(time) {
