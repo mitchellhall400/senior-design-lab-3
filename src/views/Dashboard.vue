@@ -46,28 +46,29 @@
           {{ poll.close_date }} at
           {{ getTmz24Time(poll.close_time, poll.timezone) }}
         </v-list-item>
-        <v-list-item v-if="poll.published"
-          ><v-icon class="pa-2">mdi-publish</v-icon>Published</v-list-item
-        >
-        <v-list-item v-else
-          ><v-icon class="pa-2">mdi-publish-off</v-icon>Not
-          published</v-list-item
-        >
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn icon color="secondary" @click="openPoll(index)">
+          <v-btn v-if="poll.published" icon color="secondary" @click="openPoll(index)">
             <v-icon>mdi-eye</v-icon>
           </v-btn>
-          <v-btn icon color="secondary" @click="copyText(index)">
+          <v-btn v-if="poll.published" icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
           <v-btn
+             v-if="poll.published"
             @click="
               sendEmails(index, poll.poodlers, poll.title, poll.description)
             "
             outlined
             color="secondary"
             >Remind All</v-btn
+          >
+          <v-btn
+             v-if="!poll.published"
+            @click="publishPoll(index)"
+            outlined
+            color="secondary"
+            >Publish Poll</v-btn
           >
           <v-btn @click="$router.push('/edit/' + index)" color="secondary">
             Edit
@@ -95,7 +96,7 @@
 
 <script>
 import { db, auth } from "../firebase";
-import { get, ref, query, orderByChild, equalTo } from "firebase/database";
+import { update, get, ref, query, orderByChild, equalTo } from "firebase/database";
 
 export default {
   name: "Dashboard",
@@ -153,6 +154,12 @@ export default {
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
       });
+    },
+    publishPoll(index) {
+      update(ref(db, "polls/" + index), {
+        published: true
+      })
+      this.polls[index].published = true
     },
     openPoll(txt) {
       window.open(window.location.origin + "/poll/" + txt, '_blank')

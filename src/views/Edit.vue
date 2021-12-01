@@ -180,12 +180,6 @@
           </v-list-item>
         </v-list>
         <v-card-actions>
-          <v-switch
-            v-model="published"
-            inset
-            :label="published ? 'Poll published' : 'Poll not published'"
-            class="ml-4 pl-4"
-          ></v-switch>
           <v-spacer></v-spacer>
           <v-btn @click="$router.push('/dashboard')" color="secondary" outlined
             >Cancel
@@ -193,7 +187,6 @@
           <v-btn color="secondary"
           >Save
           </v-btn>
-
         </v-card-actions>
       </v-form>
     </v-card>
@@ -221,7 +214,6 @@ export default {
     timeRangeStop: null,
     closeDate: null,
     closeTime: null,
-    published: false,
 
     // constant vars for v-selects
     timeslotOptions: [
@@ -367,7 +359,6 @@ export default {
             this.timeRangeStop = this.poll.window_time_end
             this.closeDate = this.poll.close_date
             this.closeTime = this.poll.close_time
-            this.published = this.poll.published 
             this.loading = false
           } else {
             this.$router.push("/dashboard")
