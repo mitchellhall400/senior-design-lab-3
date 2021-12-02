@@ -68,7 +68,7 @@
           <strong>Timezone: </strong>{{ poll.timezone }}
         </v-container>
         <v-spacer></v-spacer>
-        <v-container v-if="poll.timezone" class="mr-4 pa-0 pt-4 text-right">
+        <v-container class="mr-4 pa-0 pt-4 text-right">
           <strong>Selections: </strong>{{ numSelected }} /
           {{ poll.votes_per_users }}
         </v-container>
