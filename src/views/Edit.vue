@@ -544,7 +544,7 @@ export default {
             window_time_end: this.timeRangeStop,
             window_time_start: this.timeRangeStart,
           })
-          this.$root.toast.show({ message: "Succesfully created Poodle!" });
+          this.$root.toast.show({ message: "Succesfully updated Poodle!" });
           this.$router.push("/dashboard");
         }
       }
