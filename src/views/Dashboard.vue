@@ -48,17 +48,51 @@
         </v-list-item>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn v-if="poll.published" icon color="secondary" @click="openPoll(index)">
+          <v-btn
+            v-if="poll.published"
+            icon
+            color="secondary"
+            @click="openPoll(index)"
+          >
             <v-icon>mdi-eye</v-icon>
           </v-btn>
-          <v-btn v-if="poll.published" icon color="secondary" @click="copyText(index)">
+          <v-btn
+            v-if="poll.published"
+            icon
+            color="secondary"
+            @click="copyText(index)"
+          >
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
-          <v-btn icon color="secondary" @click="deletePoll(index)">
-            <v-icon>mdi-trash-can</v-icon>
-          </v-btn>
+          <v-dialog v-model="dialog[index]" width="500">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="secondary" v-bind="attrs" v-on="on">
+                <v-icon>mdi-trash-can</v-icon>
+              </v-btn>
+            </template>
+
+            <v-card>
+              <v-card-title class="error">
+                Deletion warning!
+              </v-card-title>
+              <v-card-text class="pt-4">
+                You are about to delete your "{{ poll.title }}" Poodle.
+                <br><br>
+                Once you have deleted a Poodle it cannot be recovered. Are you sure you want to delete this Poodle?
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="error" outlined @click="dialog[index] = false">
+                  Cancel
+                </v-btn>
+                <v-btn color="error" @click="deletePoll(index)">
+                  Confirm Deletion
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-btn
-             v-if="poll.published"
+            v-if="poll.published"
             @click="
               sendEmails(index, poll.poodlers, poll.title, poll.description)
             "
@@ -67,7 +101,7 @@
             >Remind All</v-btn
           >
           <v-btn
-             v-if="!poll.published"
+            v-if="!poll.published"
             @click="publishPoll(index)"
             outlined
             color="secondary"
@@ -98,9 +132,17 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { db, auth } from "../firebase";
-import { remove, update, get, ref, query, orderByChild, equalTo } from "firebase/database";
+import Vue from "vue"
+import { db, auth } from "../firebase"
+import {
+  remove,
+  update,
+  get,
+  ref,
+  query,
+  orderByChild,
+  equalTo,
+} from "firebase/database"
 
 export default {
   name: "Dashboard",
@@ -108,13 +150,14 @@ export default {
     polls: [],
     loading: false,
     none: false,
+    dialog: {},
   }),
   created() {
-    this.getPolls();
+    this.getPolls()
   },
   methods: {
     getPolls() {
-      this.loading = true;
+      this.loading = true
       get(
         query(
           ref(db, "polls"),
@@ -123,34 +166,34 @@ export default {
         )
       ).then((snapshot) => {
         if (snapshot.exists()) {
-          this.polls = snapshot.val();
-          this.loading = false;
-          this.none = false;
+          this.polls = snapshot.val()
+          this.loading = false
+          this.none = false
         } else {
-          this.loading = false;
-          this.polls = [];
-          this.none = true;
+          this.loading = false
+          this.polls = []
+          this.none = true
         }
-      });
+      })
     },
     getTmz24Time(str, tzn) {
-      var hours = parseInt(str.split(":")[0]);
-      var minutes = parseInt(str.split(":")[1]);
-      var ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      return hours + ":" + minutes + " " + ampm + " " + tzn;
+      var hours = parseInt(str.split(":")[0])
+      var minutes = parseInt(str.split(":")[1])
+      var ampm = hours >= 12 ? "PM" : "AM"
+      hours = hours % 12
+      hours = hours ? hours : 12
+      minutes = minutes < 10 ? "0" + minutes : minutes
+      return hours + ":" + minutes + " " + ampm + " " + tzn
     },
     copyText(txt) {
-      navigator.clipboard.writeText(window.location.origin + "/poll/" + txt);
+      navigator.clipboard.writeText(window.location.origin + "/poll/" + txt)
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
       })
     },
     publishPoll(index) {
       update(ref(db, "polls/" + index), {
-        published: true
+        published: true,
       })
       this.polls[index].published = true
       this.$root.toast.show({
@@ -158,16 +201,16 @@ export default {
       })
     },
     openPoll(txt) {
-      window.open(window.location.origin + "/poll/" + txt, '_blank')
+      window.open(window.location.origin + "/poll/" + txt, "_blank")
     },
     deletePoll(poll) {
+      this.dialog[poll] = false
       remove(ref(db, "polls/" + poll))
       Vue.delete(this.polls, poll)
       this.$root.toast.show({
         message: "Poodle succesfully deleted.",
       })
-      if(!Object.keys(this.polls).length) {
-        console.log(this.polls)
+      if (!Object.keys(this.polls).length) {
         this.$router.go()
       }
     },
@@ -190,13 +233,13 @@ Description: ` +
           id +
           `
 %0D%0A%0D%0AHappy Poodling!%0D%0AThe Poodle Poll Team`
-      );
+      )
     },
   },
   metaInfo: {
     title: "Dashboard",
   },
-};
+}
 </script>
 
 <style scoped>
