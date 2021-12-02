@@ -3,13 +3,55 @@
     <v-skeleton-loader class="ma-4" type="article, actions"></v-skeleton-loader>
   </v-container>
   <v-container v-else-if="submited">
-    <v-banner outlined rounded elevation="24">
+    <v-banner class="ma-4">
       <v-avatar slot="icon" color="secondary" size="40">
         <v-icon>mdi-calendar-multiple-check</v-icon>
       </v-avatar>
       <div class="text-h6">Thanks for taking this Poodle Poll!</div>
-      Your response has been recorded.
+      Your response has been recorded and is shown below.
     </v-banner>
+    <v-card class="ma-4"  elevation="8">
+      <v-card-title class="primary">
+        {{ poll.title }}
+      </v-card-title>
+      <v-list-item class="pt-4" v-if="poll.description.replace(/\s/g, '').length"
+        ><v-icon class="pa-2">mdi-comment-text</v-icon>
+        {{ poll.description }}</v-list-item
+      >
+      <v-list-item v-if="poll.location.replace(/\s/g, '').length"
+        ><v-icon class="pa-2">mdi-map-marker</v-icon
+        >{{ poll.location }}</v-list-item
+      >
+      <v-divider></v-divider>
+      <v-list-item v-if="poll.location.replace(/\s/g, '').length"
+        ><v-icon class="pa-2">mdi-calendar-multiple-check</v-icon
+        >Your Response: </v-list-item
+      >
+      <div class="d-flex flex-wrap ml-4 mr-4" style="overflow: wrap;">
+        <template v-for="(event, index) in events">
+          <v-card v-if="event.selected" outlined elevation="0" :key="index" class="ma-4" width="250">
+            <v-toolbar flat color="primary">
+              {{ event.start.split(' ')[0] }}
+              <br>
+              {{ simpleTime(event.start) }} - {{ simpleTime(event.end) }}
+            </v-toolbar>
+            <v-chip-group column class="pl-2 pr-2">
+              <v-chip
+                v-for="(ident, index) in event.details"
+                :key="index"
+                >{{ ident }}</v-chip
+              >
+              <v-chip>{{ identifier }}</v-chip>
+            </v-chip-group>
+            <div class="pa-2">
+              ({{
+                parseInt(event.name.split("/")[0].replace('(','')) + 1
+              }}/{{ poll.votes_per_timeslot }})
+            </div>
+          </v-card>
+        </template>
+      </div>
+    </v-card>
   </v-container>
   <v-container v-else>
     <v-card class="ma-4" elevation="8">
@@ -133,7 +175,12 @@
       </v-sheet>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn v-if="!closed['val']" @click="submit" color="secondary" :disabled="!numSelected">
+        <v-btn
+          v-if="!closed['val']"
+          @click="submit"
+          color="secondary"
+          :disabled="!numSelected"
+        >
           Submit
         </v-btn>
       </v-card-actions>
@@ -160,66 +207,74 @@ export default {
     intervalMinutes: "",
     intervalCount: "",
     events: [],
-    closed: {'val': false},
+    closed: { val: false },
     rules: {
       required: (value) => !!value || "Required.",
     },
     timezones: {
-      "GMT": "+0",
-      "UTC": "+0",
-      "ECT": "+1",
-      "EET": "+2",
-      "ART": "+2",
-      "EAT": "+3",
-      "MET": "+3",
-      "NET": "+4",
-      "PLT": "+5",
-      "IST": "+5.5",
-      "BST": "+6",
-      "VST": "+7",
-      "CTT": "+8",
-      "JST": "+9",
-      "ACT": "+9.5",
-      "AET": "+10",
-      "SST": "+11",
-      "NST": "+12",
-      "MIT": "-11",
-      "HST": "-10",
-      "AST": "-9",
-      "PST": "-8",
-      "PNT": "-7",
-      "MST": "-7",
-      "CST": "-6",
-      "EST": "-5",
-      "IET": "-5",
-      "PRT": "-4",
-      "CNT": "-3",
-      "AGT": "-3",
-      "BET": "-3",
-      "CAT": "-1",
+      GMT: "+0",
+      UTC: "+0",
+      ECT: "+1",
+      EET: "+2",
+      ART: "+2",
+      EAT: "+3",
+      MET: "+3",
+      NET: "+4",
+      PLT: "+5",
+      IST: "+5.5",
+      BST: "+6",
+      VST: "+7",
+      CTT: "+8",
+      JST: "+9",
+      ACT: "+9.5",
+      AET: "+10",
+      SST: "+11",
+      NST: "+12",
+      MIT: "-11",
+      HST: "-10",
+      AST: "-9",
+      PST: "-8",
+      PNT: "-7",
+      MST: "-7",
+      CST: "-6",
+      EST: "-5",
+      IET: "-5",
+      PRT: "-4",
+      CNT: "-3",
+      AGT: "-3",
+      BET: "-3",
+      CAT: "-1",
     },
   }),
   created() {
-    this.getPoll()
+    this.getPoll();
   },
   methods: {
     isClosed(date, time, tzn) {
-      var dSplit = date.split('-')
-      var tSplit = time.split(':')
-      var closeDate = new Date(dSplit[0], parseInt(dSplit[1]) - 1, dSplit[2], tSplit[0],tSplit[1])
-      if(tzn == "") {
-        console.log(closeDate < new Date())
-        return closeDate < new Date()
-      }
-      else {
-        console.log(closeDate < this.getTimeInTimezone(new Date(), this.timezones[tzn]))
-        return closeDate < this.getTimeInTimezone(new Date(), this.timezones[tzn])
+      var dSplit = date.split("-");
+      var tSplit = time.split(":");
+      var closeDate = new Date(
+        dSplit[0],
+        parseInt(dSplit[1]) - 1,
+        dSplit[2],
+        tSplit[0],
+        tSplit[1]
+      );
+      if (tzn == "") {
+        return closeDate < new Date();
+      } else {
+        console.log(
+          closeDate < this.getTimeInTimezone(new Date(), this.timezones[tzn])
+        );
+        return (
+          closeDate < this.getTimeInTimezone(new Date(), this.timezones[tzn])
+        );
       }
     },
     getTimeInTimezone(d, offset) {
-      var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-      var nd = new Date(utc + (3600000*offset))
-      return nd
+      var utc = d.getTime() + d.getTimezoneOffset() * 60000;
+      var nd = new Date(utc + 3600000 * offset);
+      return nd;
     },
     getPoll() {
       this.loading = true;
@@ -241,9 +296,13 @@ export default {
               );
               this.intervalCount = windowMinutes / this.intervalMinutes;
             }
-            this.generateEvents()
-            this.closed['val'] = this.isClosed(this.poll.close_date, this.poll.close_time, this.poll.timezone)
-            this.loading = false
+            this.generateEvents();
+            this.closed["val"] = this.isClosed(
+              this.poll.close_date,
+              this.poll.close_time,
+              this.poll.timezone
+            );
+            this.loading = false;
           } else {
             this.$router.push("/");
           }
@@ -343,7 +402,7 @@ export default {
       nativeEvent.stopPropagation();
     },
     reservation() {
-      this.selectedOpen = false
+      this.selectedOpen = false;
       if (this.selectedEvent.selected) {
         this.selectedEvent.color = "primary";
         this.selectedEvent.selected = false;
@@ -385,16 +444,21 @@ export default {
       return hours + ":" + minutes + " " + ampm + " " + tzn;
     },
     submit() {
-      if(this.isClosed) {
-        this.$set(this.closed, 'val', true)
-        this.$root.toast.show({ message: "Poll has closed." })
+      if (
+        this.isClosed(
+          this.poll.close_date,
+          this.poll.close_time,
+          this.poll.timezone
+        )
+      ) {
+        this.$set(this.closed, "val", true);
+        this.$root.toast.show({ message: "Poll has closed." });
         this.events.forEach((event) => {
-          event.selected = false
-          event.color = event.full ? "grey" : "primary"
-          event.disabled = true
-        })
-      }
-      else if (this.$refs.pollForm.validate()) {
+          event.selected = false;
+          event.color = event.full ? "grey" : "primary";
+          event.disabled = true;
+        });
+      } else if (this.$refs.pollForm.validate()) {
         get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
           if (snapshot.exists()) {
             var tmpPoll = snapshot.val();

@@ -7,7 +7,7 @@
       ></v-skeleton-loader>
     </template>
     <div v-if="none">
-      <v-banner outlined rounded elevation="24">
+      <v-banner>
         <v-avatar slot="icon" color="secondary" size="40">
           <v-icon>mdi-card-bulleted-off</v-icon>
         </v-avatar>
