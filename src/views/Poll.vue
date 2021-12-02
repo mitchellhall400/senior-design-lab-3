@@ -2,6 +2,15 @@
   <v-container v-if="loading">
     <v-skeleton-loader class="ma-4" type="article, actions"></v-skeleton-loader>
   </v-container>
+  <v-container v-else-if="submited">
+    <v-banner outlined rounded elevation="24">
+      <v-avatar slot="icon" color="secondary" size="40">
+        <v-icon>mdi-calendar-multiple-check</v-icon>
+      </v-avatar>
+      <div class="text-h6">Thanks for taking this Poodle Poll!</div>
+      Your response has been recored.
+    </v-banner>
+  </v-container>
   <v-container v-else>
     <v-card class="ma-4" elevation="8">
       <v-card-title class="primary">
@@ -28,7 +37,7 @@
           {{ poll.description }}
         </v-list-item>
       </v-list-item-content>
-      <v-form class="ml-4 mr-4">
+      <v-form ref="pollForm" class="ml-4 mr-4" lazy-validation>
         <v-text-field
           filled
           v-model="identifier"
@@ -94,24 +103,27 @@
                 <v-icon @click="selectedOpen = false">mdi-close</v-icon>
               </v-btn>
             </v-toolbar>
-            <v-card-text>
+            <div class="text-body-2 pa-2">
               {{
                 simpleTime(selectedEvent.start) +
                 " - " +
                 simpleTime(selectedEvent.end)
               }}
-              <br>
-              <v-chip-group column>
-                <v-chip small v-for="(ident, index) in selectedEvent.details" :key="index">{{ ident }}</v-chip>
-              </v-chip-group>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                v-if="!selectedEvent.full && !selectedEvent.disabled"
-                color="secondary"
-                @click="reservation"
+            </div>
+            <v-divider></v-divider>
+            <v-chip-group column class="pl-2 pr-2">
+              <v-chip
+                small
+                v-for="(ident, index) in selectedEvent.details"
+                :key="index"
+                >{{ ident }}</v-chip
               >
+            </v-chip-group>
+            <v-card-actions
+              v-if="!selectedEvent.full && !selectedEvent.disabled"
+            >
+              <v-spacer></v-spacer>
+              <v-btn color="secondary" @click="reservation">
                 <div v-if="selectedEvent.selected">Unselect</div>
                 <div v-else>Select</div>
               </v-btn>
@@ -121,11 +133,7 @@
       </v-sheet>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn
-          @click="$router.push('/dashboard')"
-          color="secondary"
-          :disabled="!numSelected"
-        >
+        <v-btn @click="submit" color="secondary" :disabled="!numSelected">
           Submit
         </v-btn>
       </v-card-actions>
@@ -134,12 +142,13 @@
 </template>
   
 <script>
-import { db } from "../firebase"
-import { get, ref } from "firebase/database"
+import { db } from "../firebase";
+import { set, get, ref } from "firebase/database";
 
 export default {
   name: "Edit",
   data: () => ({
+    submited: false,
     numSelected: 0,
     focus: "",
     poll: {},
@@ -156,54 +165,55 @@ export default {
     },
   }),
   created() {
-    this.getPoll()
+    this.getPoll();
   },
   methods: {
     getPoll() {
-      this.loading = true
+      this.loading = true;
       get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
         if (snapshot.exists()) {
-          this.poll = snapshot.val()
+          this.poll = snapshot.val();
           if (this.poll.published) {
-            this.focus = this.poll.window_date_start
-            var start = this.poll.window_time_start.split(":")
-            var end = this.poll.window_time_end.split(":")
+            this.focus = this.poll.window_date_start;
+            var start = this.poll.window_time_start.split(":");
+            var end = this.poll.window_time_end.split(":");
             var windowMinutes =
-              parseInt(end[0] - start[0]) * 60 + parseInt(end[1] - start[1])
+              parseInt(end[0] - start[0]) * 60 + parseInt(end[1] - start[1]);
             if (this.poll.time_slot_duration) {
-              this.intervalMinutes = this.poll.time_slot_duration
-              this.intervalCount = windowMinutes / this.intervalMinutes
+              this.intervalMinutes = this.poll.time_slot_duration;
+              this.intervalCount = windowMinutes / this.intervalMinutes;
             } else {
-              this.intervalMinutes =
+              this.intervalMinutes = parseInt(
                 windowMinutes / this.poll.time_slots_per_day
-              this.intervalCount = windowMinutes / this.intervalMinutes
+              );
+              this.intervalCount = windowMinutes / this.intervalMinutes;
             }
-            this.generateEvents()
-            this.loading = false
+            this.generateEvents();
+            this.loading = false;
           } else {
-            this.$router.push("/dashboard")
+            this.$router.push("/");
           }
         } else {
-          this.$router.push("/dashboard")
+          this.$router.push("/");
         }
-      })
-      return true
+      });
+      return true;
     },
     generateEvents() {
-      var dEnd = new Date(this.poll.window_date_end)
-      var dCur = new Date(this.poll.window_date_start)
-      dEnd.setDate(dEnd.getDate() + 1)
-      dCur.setDate(dCur.getDate() + 1)
+      var dEnd = new Date(this.poll.window_date_end);
+      var dCur = new Date(this.poll.window_date_start);
+      dEnd.setDate(dEnd.getDate() + 1);
+      dCur.setDate(dCur.getDate() + 1);
       while (dCur <= dEnd) {
         var date =
           dCur.getFullYear() +
           "-" +
           (dCur.getMonth() + 1) +
           "-" +
-          dCur.getDate()
+          dCur.getDate();
         for (var i = 0; i < this.intervalCount; i++) {
-          var start_time = this.addNIntervals(i, this.poll.window_time_start)
-          var response = this.getResponse(date, start_time)
+          var start_time = this.addNIntervals(i, this.poll.window_time_start);
+          var response = this.getResponse(date, start_time);
           this.events.push({
             name: "(" + response.num + "/" + this.poll.votes_per_timeslot + ")",
             start: date + " " + start_time,
@@ -211,14 +221,15 @@ export default {
               date +
               " " +
               this.addNIntervals(i + 1, this.poll.window_time_start),
-            color: response.num == this.poll.votes_per_timeslot ? "grey" : "primary",
+            color:
+              response.num == this.poll.votes_per_timeslot ? "grey" : "primary",
             details: response.identifiers,
             full: response.num == this.poll.votes_per_timeslot,
             selected: false,
             disabled: false,
-          })
+          });
         }
-        dCur.setDate(dCur.getDate() + 1)
+        dCur.setDate(dCur.getDate() + 1);
       }
     },
     getResponse(date, start) {
@@ -229,96 +240,142 @@ export default {
       ) {
         return {
           num: this.poll.time_slots[date][start].length,
-          identifiers: this.poll.time_slots[date][start]
-        }
-      }
-      else {
+          identifiers: this.poll.time_slots[date][start],
+        };
+      } else {
         return {
           num: 0,
-          identifiers: ""
-        }
+          identifiers: "",
+        };
       }
     },
     addNIntervals(n, time) {
-      var split = time.split(":")
-      split[1] = parseInt(split[1]) + this.intervalMinutes * n
-      split[0] = parseInt(split[0]) + Math.floor(split[1] / 60)
-      split[1] = split[1] % 60
-      var hour = split[0].toString()
-      var min = split[1].toString()
+      var split = time.split(":");
+      split[1] = parseInt(split[1]) + this.intervalMinutes * n;
+      split[0] = parseInt(split[0]) + Math.floor(split[1] / 60);
+      split[1] = parseInt(split[1] % 60);
+      var hour = split[0].toString();
+      var min = split[1].toString();
       if (split[0] < 10) {
-        hour = "0" + hour
+        hour = "0" + hour;
       }
       if (split[1] < 10) {
-        min = "0" + min
+        min = "0" + min;
       }
-      return hour + ":" + min
+      return hour + ":" + min;
     },
     prev() {
-      this.$refs.calendar.prev()
+      this.$refs.calendar.prev();
     },
     next() {
-      this.$refs.calendar.next()
+      this.$refs.calendar.next();
     },
     showEvent({ nativeEvent, event }) {
       const open = () => {
-        this.selectedEvent = event
-        this.selectedElement = nativeEvent.target
+        this.selectedEvent = event;
+        this.selectedElement = nativeEvent.target;
         requestAnimationFrame(() =>
           requestAnimationFrame(() => (this.selectedOpen = true))
-        )
-      }
+        );
+      };
 
       if (this.selectedOpen) {
-        this.selectedOpen = false
-        requestAnimationFrame(() => requestAnimationFrame(() => open()))
+        this.selectedOpen = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => open()));
       } else {
-        open()
+        open();
       }
 
-      nativeEvent.stopPropagation()
+      nativeEvent.stopPropagation();
     },
     reservation() {
-      this.selectedOpen = false
+      this.selectedOpen = false;
       if (this.selectedEvent.selected) {
-        this.selectedEvent.color = "primary"
-        this.selectedEvent.selected = false
+        this.selectedEvent.color = "primary";
+        this.selectedEvent.selected = false;
         if (this.numSelected == this.poll.votes_per_users) {
           this.events.forEach((event) => {
             if (event.disabled) {
-              event.color = "primary"
-              event.disabled = false
+              event.color = "primary";
+              event.disabled = false;
             }
-          })
+          });
         }
-        this.numSelected--
+        this.numSelected--;
       } else {
-        this.selectedEvent.color = "secondary"
-        this.selectedEvent.selected = true
-        this.numSelected++
+        this.selectedEvent.color = "secondary";
+        this.selectedEvent.selected = true;
+        this.numSelected++;
         if (this.numSelected == this.poll.votes_per_users) {
           this.events.forEach((event) => {
             if (!event.selected && !event.full) {
-              event.color = "grey"
-              event.disabled = true
+              event.color = "grey  darken-2";
+              event.disabled = true;
             }
-          })
+          });
         }
       }
     },
     simpleTime(time) {
-      var str = new Date(time).toLocaleTimeString("en-US")
-      str = str.slice(0, str.length - 6) + str.slice(str.length - 3)
-      return str
+      var str = new Date(time).toLocaleTimeString("en-US");
+      str = str.slice(0, str.length - 6) + str.slice(str.length - 3);
+      return str;
     },
     getTmz24Time(str, tzn) {
-      var hours = parseInt(str.split(":")[0])
-      var minutes = parseInt(str.split(":")[1])
-      var ampm = hours >= 12 ? "PM" : "AM"
-      hours = hours % 12
-      hours = hours ? hours : 12
-      minutes = minutes < 10 ? "0" + minutes : minutes
-      return hours + ":" + minutes + " " + ampm + " " + tzn
+      var hours = parseInt(str.split(":")[0]);
+      var minutes = parseInt(str.split(":")[1]);
+      var ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      return hours + ":" + minutes + " " + ampm + " " + tzn;
+    },
+    submit() {
+      if (this.$refs.pollForm.validate()) {
+        get(ref(db, "polls/" + this.$route.params.id)).then((snapshot) => {
+          if (snapshot.exists()) {
+            var tmpPoll = snapshot.val();
+            this.events.forEach((event) => {
+              if (event.selected) {
+                var date = event.start.split(" ")[0];
+                var start = event.start.split(" ")[1];
+                var prevEmails = [];
+                if (
+                  tmpPoll.time_slots != undefined &&
+                  tmpPoll.time_slots[date] != undefined &&
+                  tmpPoll.time_slots[date][start] != undefined &&
+                  tmpPoll.time_slots[date][start].length !=
+                    this.poll.votes_per_timeslot
+                ) {
+                  prevEmails = tmpPoll.time_slots[date][start];
+                }
+                prevEmails.push(this.identifier);
+                set(
+                  ref(
+                    db,
+                    "polls/" +
+                      this.$route.params.id +
+                      "/time_slots/" +
+                      date +
+                      "/" +
+                      start
+                  ),
+                  prevEmails
+                );
+              }
+            });
+          } else {
+            this.$root.toast.show({ message: "This poll no longer exists." });
+            this.$router.push("/");
+          }
+        });
+        this.submited = true;
+        this.$root.toast.show({
+          message: "Response recorded!",
+        });
+      } else {
+        this.$root.toast.show({ message: "Identifier is required." });
+      }
     },
   },
   computed: {
@@ -336,29 +393,29 @@ export default {
         "October",
         "November",
         "December",
-      ]
-      var date = new Date(this.focus)
-      date.setDate(date.getDate() - date.getDay())
+      ];
+      var date = new Date(this.focus);
+      date.setDate(date.getDate() - date.getDay());
       var from =
         months[date.getMonth()] +
         " " +
         date.getDate() +
         ", " +
-        date.getFullYear()
-      date.setDate(date.getDate() + 6)
+        date.getFullYear();
+      date.setDate(date.getDate() + 6);
       var to =
         months[date.getMonth()] +
         " " +
         date.getDate() +
         ", " +
-        date.getFullYear()
-      return from + " - " + to
+        date.getFullYear();
+      return from + " - " + to;
     },
   },
   metaInfo: {
     title: "Take Poll",
   },
-}
+};
 </script>
 
 <style>
