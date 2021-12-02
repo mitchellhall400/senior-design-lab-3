@@ -8,7 +8,7 @@
         <v-icon>mdi-calendar-multiple-check</v-icon>
       </v-avatar>
       <div class="text-h6">Thanks for taking this Poodle Poll!</div>
-      Your response has been recored.
+      Your response has been recorded.
     </v-banner>
   </v-container>
   <v-container v-else>
