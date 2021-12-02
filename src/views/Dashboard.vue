@@ -54,6 +54,9 @@
           <v-btn v-if="poll.published" icon color="secondary" @click="copyText(index)">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
+          <v-btn icon color="secondary" @click="deletePoll(index)">
+            <v-icon>mdi-trash-can</v-icon>
+          </v-btn>
           <v-btn
              v-if="poll.published"
             @click="
@@ -95,8 +98,9 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { db, auth } from "../firebase";
-import { update, get, ref, query, orderByChild, equalTo } from "firebase/database";
+import { remove, update, get, ref, query, orderByChild, equalTo } from "firebase/database";
 
 export default {
   name: "Dashboard",
@@ -138,31 +142,34 @@ export default {
       minutes = minutes < 10 ? "0" + minutes : minutes;
       return hours + ":" + minutes + " " + ampm + " " + tzn;
     },
-    getClosesAt(str, tzn) {
-      var date = new Date(str);
-      var strTime = this.getTmz24Time(str, tzn);
-      var dateStr =
-        (date.getMonth() + 1).toString() +
-        "/" +
-        date.getDate().toString() +
-        "/" +
-        date.getFullYear().toString();
-      return strTime + " on " + dateStr;
-    },
     copyText(txt) {
       navigator.clipboard.writeText(window.location.origin + "/poll/" + txt);
       this.$root.toast.show({
         message: "Poodle copied to clipboard!",
-      });
+      })
     },
     publishPoll(index) {
       update(ref(db, "polls/" + index), {
         published: true
       })
       this.polls[index].published = true
+      this.$root.toast.show({
+        message: "Poodle published!",
+      })
     },
     openPoll(txt) {
       window.open(window.location.origin + "/poll/" + txt, '_blank')
+    },
+    deletePoll(poll) {
+      remove(ref(db, "polls/" + poll))
+      Vue.delete(this.polls, poll)
+      this.$root.toast.show({
+        message: "Poodle succesfully deleted.",
+      })
+      if(!Object.keys(this.polls).length) {
+        console.log(this.polls)
+        this.$router.go()
+      }
     },
     sendEmails(id, emails, title, desc) {
       window.open(
