@@ -9,7 +9,6 @@
             label="Title"
             prepend-icon="mdi-label"
             filled
-            :rules="[rules.required, rules.min]"
           ></v-text-field>
           <v-textarea
             v-model="description"
@@ -125,7 +124,7 @@
                       color="primary"
                       full-width
                       ampm-in-title
-                      :max="timeRangeStop"
+                      :max="getStartTimeBound()"
                     ></v-time-picker>
                   </v-col>
                   <v-col>
@@ -135,7 +134,7 @@
                       color="primary"
                       full-width
                       ampm-in-title
-                      :min="timeRangeStart"
+                      :min="getStopTimeBound()"
                     ></v-time-picker>
                   </v-col>
                 </v-row>
@@ -174,6 +173,7 @@
             </v-list-item>
           </v-list>
           <v-checkbox
+            class="pl-4"
             v-model="published"
             name="publish"
             label="Publish with creation"
@@ -259,10 +259,6 @@ export default {
       "BET - Brazil Eastern Time",
       "CAT - Central African Time",
     ],
-    rules: {
-      required: (value) => !!value || "Required.",
-      min: (v) => (v && v.length >= 4) || "Min 4 characters",
-    },
   }),
   metaInfo: {
     title: "Create",
@@ -291,6 +287,26 @@ export default {
             d2.toLocaleDateString("en-US");
         }
       }
+    },
+    getStopTimeBound() {
+      if (this.timeRangeStart != null) {
+        var time = this.timeRangeStart.split(":");
+        if (parseInt(time[1]) > 54) {
+          return parseInt(time[0]) + 1 + ":" + (parseInt(time[1]) - 55);
+        }
+        return time[0] + ":" + (parseInt(time[1]) + 5);
+      }
+      return "0:05";
+    },
+    getStartTimeBound() {
+      if (this.timeRangeStop != null) {
+        var time = this.timeRangeStop.split(":");
+        if (parseInt(time[1]) < 6) {
+          return parseInt(time[0]) - 1 + ":" + (parseInt(time[1]) + 55);
+        }
+        return time[0] + ":" + (parseInt(time[1]) - 5);
+      }
+      return "23:54";
     },
     selectedTimeOptionLabel() {
       if (this.selectedTimeOption == "desired number of time slots per day") {
@@ -336,42 +352,119 @@ export default {
       } else {
         dbTimezone = this.timezone.substring(0, 3);
       }
+
+      // process close date
       var dCur = new Date(this.closeDate);
-
-      // process timeslot number to store
-      var timeSlotDuration = "";
-      var timeSlotPerDay = "";
-      if (this.selectedTimeOption == "desired number of time slots per day") {
-        timeSlotPerDay = this.timeslotCreationNumber;
-      } else {
-        timeSlotDuration = this.timeslotCreationNumber;
-      }
-
-      push(ref(db, "polls"), {
-        close_date:
+      var closeDateMod = "";
+      var closeTimeMod = "";
+      if (this.closeDate != null) {
+        closeDateMod =
           dCur.getFullYear() +
           "-" +
           (dCur.getMonth() + 1) +
           "-" +
-          (dCur.getDate() + 1),
-        close_time: this.closeTime,
-        created_by: auth.currentUser.email,
-        description: this.description,
-        location: this.location,
-        poodlers: this.emails.join(","),
-        published: this.published,
-        time_slot_duration: timeSlotDuration,
-        time_slots: {},
-        time_slots_per_day: timeSlotPerDay,
-        timezone: dbTimezone,
-        title: this.title,
-        votes_per_timeslot: this.votesPerTimeslot,
-        votes_per_users: this.votesPerUser,
-        window_date_end: this.dates[1],
-        window_date_start: this.dates[0],
-        window_time_end: this.timeRangeStop,
-        window_time_start: this.timeRangeStart,
-      });
+          (dCur.getDate() + 1);
+        if (this.closeTime == null) {
+          closeTimeMod = "23:59";
+        }
+        else {
+          closeTimeMod = this.closeTime;
+        }
+      }
+
+      // field verification
+      var valid = true;
+      if (this.dates.length < 2) {
+        this.$root.toast.show({ message: "Please enter a valid Date Range" });
+        valid = false;
+      }
+      if (this.title == "") {
+        this.$root.toast.show({ message: "Please enter a valid Title" });
+        valid = false;
+      } else if (isNaN(this.votesPerTimeslot) || this.votesPerTimeslot == "" || this.votesPerTimeslot == 0) {
+        this.$root.toast.show({
+          message: "Please enter a valid number for Votes Per Time Slot",
+        });
+        valid = false;
+      } else if (isNaN(this.votesPerUser) || this.votesPerUser == "" || this.votesPerUser == 0) {
+        this.$root.toast.show({
+          message: "Please enter a valid Number for Votes Per User",
+        });
+        valid = false;
+      } else if (this.timeRangeStart == null) {
+        this.$root.toast.show({ message: "Please enter a Start Time Range" });
+        valid = false;
+      } else if (this.timeRangeStop == null) {
+        this.$root.toast.show({ message: "Please enter a End Time Range" });
+        valid = false;
+      } else if (
+        this.selectedTimeOption == "desired number of time slots per day"
+      ) {
+        var timeSlotDuration = "";
+        var timeSlotPerDay = this.timeslotCreationNumber;
+        var start = this.timeRangeStart.split(":");
+        var end = this.timeRangeStop.split(":");
+        if (
+          isNaN(this.timeslotCreationNumber) ||
+          this.timeslotCreationNumber == ""
+        ) {
+          this.$root.toast.show({
+            message: "Please enter a valid Number of Time Slots Per Day",
+          });
+          valid = false;
+        } else if (
+          (parseInt(end[0] - start[0]) * 60 + parseInt(end[1] - start[1])) /
+            this.timeslotCreationNumber <
+          5
+        ) {
+          this.$root.toast.show({
+            message:
+              "Too many Time Slots Per Day for entered Poodle Time Range",
+          });
+          valid = false;
+        }
+      } else if (
+        this.selectedTimeOption == "desired length of time per time slot"
+      ) {
+        timeSlotPerDay = "";
+        timeSlotDuration = this.timeslotCreationNumber;
+        if (
+          isNaN(this.timeslotCreationNumber) ||
+          this.timeslotCreationNumber == "" ||
+          this.timeslotCreationNumber < 5
+        ) {
+          this.$root.toast.show({
+            message: "Please enter a valid Time Slot Length",
+          });
+          valid = false;
+        }
+      }
+
+      // push data to db if valid
+      if (valid) {
+        push(ref(db, "polls"), {
+          close_date: closeDateMod,
+          close_time: closeTimeMod,
+          created_by: auth.currentUser.email,
+          description: this.description,
+          location: this.location,
+          poodlers: this.emails.join(","),
+          published: this.published,
+          time_slot_duration: timeSlotDuration,
+          time_slots: {},
+          time_slots_per_day: timeSlotPerDay,
+          timezone: dbTimezone,
+          title: this.title,
+          votes_per_timeslot: this.votesPerTimeslot,
+          votes_per_users: this.votesPerUser,
+          window_date_end: this.dates[1],
+          window_date_start: this.dates[0],
+          window_time_end: this.timeRangeStop,
+          window_time_start: this.timeRangeStart,
+        });
+        this.$root.toast.show({ message: "Succesfully created Poodle!" });
+        this.$router.push("/dashboard");
+      }
     },
   },
 };
